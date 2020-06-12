@@ -688,7 +688,10 @@ int32_t nss_tx_rx_virt_if_copy_stats(int32_t if_num, int i, char *line)
 	}
 
 	ifnum = NSS_TX_RX_VIRT_IF_GET_INDEX(if_num);
-
+	if ((ifnum < 0) || (ifnum >= NSS_MAX_DYNAMIC_INTERFACES)) {
+		nss_warning("invalid interface number\n");
+		return 0;
+	}
 	spin_lock_bh(&nss_tx_rx_virt_if_lock);
 	if (!nss_tx_rx_virt_if_handles[ifnum]) {
 		spin_unlock_bh(&nss_tx_rx_virt_if_lock);
