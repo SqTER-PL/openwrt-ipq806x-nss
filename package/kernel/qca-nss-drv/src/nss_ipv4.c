@@ -484,7 +484,7 @@ static void nss_ipv4_conn_cfg_process_callback(void *app_data, struct nss_ipv4_m
 
 	if (nim->cm.response != NSS_CMN_RESPONSE_ACK) {
 		nss_warning("%p: IPv4 connection configuration failed with error: %d\n", nss_ctx, nim->cm.error);
-		nss_core_update_max_ipv4_conn(NSS_DEFAULT_NUM_CONN);
+		nss_core_update_max_ipv4_conn(NSS_FW_DEFAULT_NUM_CONN);
 		nss_ipv4_free_conn_tables();
 		return;
 	}
@@ -564,7 +564,7 @@ static void nss_ipv4_update_conn_count_callback(void *app_data, struct nss_ipv4_
 
 	if (nim->cm.response != NSS_CMN_RESPONSE_ACK) {
 		nss_warning("%p: IPv4 fetch connection info failed with error: %d\n", nss_ctx, nim->cm.error);
-		nss_core_update_max_ipv4_conn(NSS_DEFAULT_NUM_CONN);
+		nss_core_update_max_ipv4_conn(NSS_FW_DEFAULT_NUM_CONN);
 		return;
 	}
 
@@ -599,7 +599,7 @@ int nss_ipv4_update_conn_count(int ipv4_num_conn)
 	/*
 	 * By default, NSS FW is configured with default number of connections.
 	 */
-	if (ipv4_num_conn == NSS_DEFAULT_NUM_CONN) {
+	if (ipv4_num_conn == NSS_FW_DEFAULT_NUM_CONN) {
 		nss_info("%p: Default number of connections (%d) already configured\n", nss_ctx, ipv4_num_conn);
 		return 0;
 	}

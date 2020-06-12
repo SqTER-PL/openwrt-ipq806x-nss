@@ -486,7 +486,7 @@ static void nss_ipv6_conn_cfg_process_callback(void *app_data, struct nss_ipv6_m
 
 	if (nim->cm.response != NSS_CMN_RESPONSE_ACK) {
 		nss_warning("%p: IPv6 connection configuration failed with error: %d\n", nss_ctx, nim->cm.error);
-		nss_core_update_max_ipv6_conn(NSS_DEFAULT_NUM_CONN);
+		nss_core_update_max_ipv6_conn(NSS_FW_DEFAULT_NUM_CONN);
 		nss_ipv6_free_conn_tables();
 		return;
 	}
@@ -573,7 +573,7 @@ static void nss_ipv6_update_conn_count_callback(void *app_data, struct nss_ipv6_
 
 	if (nim->cm.response != NSS_CMN_RESPONSE_ACK) {
 		nss_warning("%p: IPv6 fetch connection info failed with error: %d\n", nss_ctx, nim->cm.error);
-		nss_core_update_max_ipv6_conn(NSS_DEFAULT_NUM_CONN);
+		nss_core_update_max_ipv6_conn(NSS_FW_DEFAULT_NUM_CONN);
 		return;
 	}
 
@@ -608,7 +608,7 @@ int nss_ipv6_update_conn_count(int ipv6_num_conn)
 	/*
 	 * By default, NSS FW is configured with default number of connections.
 	 */
-	if (ipv6_num_conn == NSS_DEFAULT_NUM_CONN) {
+	if (ipv6_num_conn == NSS_FW_DEFAULT_NUM_CONN) {
 		nss_info("%p: Default number of connections (%d) already configured\n", nss_ctx, ipv6_num_conn);
 		return 0;
 	}

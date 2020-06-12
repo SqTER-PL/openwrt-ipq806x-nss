@@ -22,11 +22,12 @@
 #ifndef __NSS_HLOS_IF_H
 #define __NSS_HLOS_IF_H
 
-#define NSS_MIN_NUM_CONN 			256		/**< MIN  Connection shared between IPv4 and IPv6 */
-#define NSS_DEFAULT_NUM_CONN			4096		/**< Default number of connections for each IPV4 and IPV6 */
-#define NSS_NUM_CONN_QUANTA_MASK		(1024 - 1)	/**< Quanta of number of connections  1024 */
-#define NSS_MAX_TOTAL_NUM_CONN_IPV4_IPV6	8196		/**< MAX Connection shared between IPv4 and IPv6 */
-#define NSS_CONN_CFG_TIMEOUT			6000		/**< 6 sec timeout for connection cfg message */
+#define NSS_MIN_NUM_CONN 			256		/**< MIN Connection shared between IPv4 and IPv6. */
+#define NSS_DEFAULT_NUM_CONN			4096		/**< Default number of connections for each IPv4 and IPv6. */
+#define NSS_FW_DEFAULT_NUM_CONN			1024		/**< Firmware default number of connections for IPv4 and IPv6.*/
+#define NSS_NUM_CONN_QUANTA_MASK		(1024 - 1)	/**< Quanta of number of connections 1024. */
+#define NSS_MAX_TOTAL_NUM_CONN_IPV4_IPV6	8196		/**< MAX Connection shared between IPv4 and IPv6. */
+#define NSS_CONN_CFG_TIMEOUT			6000		/**< 6 sec timeout for connection cfg message. */
 
 enum {
 	NSS_SUCCESS = 0,
