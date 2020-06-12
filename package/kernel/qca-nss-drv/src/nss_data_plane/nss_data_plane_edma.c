@@ -148,11 +148,18 @@ static int __nss_data_plane_vsi_unassign(struct nss_dp_data_plane_ctx *dpc, uint
  * __nss_data_plane_buf()
  *	Called by nss-dp to pass a sk_buff for xmit
  */
-static int __nss_data_plane_buf(struct nss_dp_data_plane_ctx *dpc, struct sk_buff *skb)
+static netdev_tx_t __nss_data_plane_buf(struct nss_dp_data_plane_ctx *dpc, struct sk_buff *skb)
 {
 	struct nss_data_plane_edma_param *dp = (struct nss_data_plane_edma_param *)dpc;
 	int nhead = dpc->dev->needed_headroom;
 	bool expand_skb = false;
+	nss_tx_status_t status;
+	struct net_device *dev = dpc->dev;
+
+	if (skb->len < ETH_HLEN) {
+		nss_trace("skb->len < ETH_HLEN\n");
+		goto drop;
+	}
 
 	if (skb_cloned(skb) || (skb_headroom(skb) < nhead)) {
 		expand_skb = true;
@@ -160,10 +167,21 @@ static int __nss_data_plane_buf(struct nss_dp_data_plane_ctx *dpc, struct sk_buf
 
 	if (expand_skb && pskb_expand_head(skb, nhead, 0, GFP_KERNEL)) {
 		nss_trace("%p: Unable to expand skb for headroom\n", dp);
-		return NSS_TX_FAILURE;
+		goto drop;
 	}
 
-	return nss_phys_if_buf(dp->nss_ctx, skb, dp->if_num);
+	status = nss_phys_if_buf(dp->nss_ctx, skb, dp->if_num);
+	if (likely(status == NSS_TX_SUCCESS)) {
+		return NETDEV_TX_OK;
+	} else if (status == NSS_TX_FAILURE_QUEUE) {
+		return NETDEV_TX_BUSY;
+	}
+
+drop:
+	dev_kfree_skb_any(skb);
+	dev->stats.tx_dropped++;
+
+	return NETDEV_TX_OK;
 }
 
 /*
