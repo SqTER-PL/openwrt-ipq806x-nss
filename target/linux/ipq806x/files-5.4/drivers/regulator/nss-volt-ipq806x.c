@@ -20,7 +20,7 @@
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/of_device.h>
-#include "nss-volt-ipq806x.h"
+#include <linux/regulator/nss-volt-ipq806x.h>
 
 static struct regulator *nss_reg;
 static u32 nss_core_vdd_nominal;
@@ -71,34 +71,46 @@ static const struct of_device_id nss_ipq806x_match_table[] = {
 	{ }
 };
 
-static int nss_ipq806x_probe(struct platform_device *pdev)
+static int nss_volt_ipq806x_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node, *vdd;
+	int curr_uV;
 
 	if (!np)
 		return -ENODEV;
 
 	vdd = of_parse_phandle(np, "nss_core-supply", 0);
-	if (vdd)
-		nss_reg = regulator_get(NULL, vdd->name);
+	if (vdd) {
+		nss_reg = devm_regulator_get(&pdev->dev, vdd->name);
+		if (IS_ERR(nss_reg)) {
+			dev_err(&pdev->dev, "NSS regulator get error\n");
+			return -ENODEV;
+		}
+	}
 	else
 		return -ENODEV;
 
+	curr_uV = regulator_get_voltage(nss_reg);
+	if(curr_uV < 0) {
+		dev_warn(&pdev->dev, "deferring probe\n");
+		return -EPROBE_DEFER;
+	}
+
 	if (of_property_read_u32(np, "nss_core_vdd_nominal",
 					&nss_core_vdd_nominal)) {
-		pr_err("NSS core vdd nominal not found. Using defaults...\n");
+		pr_warn("NSS core vdd nominal not found. Using defaults...\n");
 		nss_core_vdd_nominal = 1100000;
 	}
 
 	if (of_property_read_u32(np, "nss_core_vdd_high",
 					&nss_core_vdd_high)) {
-		pr_err("NSS core vdd high not found. Using defaults...\n");
+		pr_warn("NSS core vdd high not found. Using defaults...\n");
 		nss_core_vdd_high = 1150000;
 	}
 
 	if (of_property_read_u32(np, "nss_core_threshold_freq",
 					&nss_core_threshold_freq)) {
-		pr_err("NSS core thres freq not found. Using defaults...\n");
+		pr_warn("NSS core thres freq not found. Using defaults...\n");
 		nss_core_threshold_freq = 733000000;
 	}
 
@@ -106,9 +118,9 @@ static int nss_ipq806x_probe(struct platform_device *pdev)
 }
 
 static struct platform_driver nss_ipq806x_driver = {
-	.probe          = nss_ipq806x_probe,
+	.probe          = nss_volt_ipq806x_probe,
 	.driver         = {
-		.name   = "nss-common-ipq806x",
+		.name   = "nss-volt-ipq806x",
 		.owner  = THIS_MODULE,
 		.of_match_table = nss_ipq806x_match_table,
 	},
@@ -118,7 +130,7 @@ static int __init nss_ipq806x_init(void)
 {
 	return platform_driver_register(&nss_ipq806x_driver);
 }
-device_initcall(nss_ipq806x_init);
+late_initcall(nss_ipq806x_init);
 
 static void __exit nss_ipq806x_exit(void)
 {

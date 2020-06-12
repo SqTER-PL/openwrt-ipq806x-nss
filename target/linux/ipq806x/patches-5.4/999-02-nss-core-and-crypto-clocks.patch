@@ -1,5 +1,5 @@
---- a/include/dt-bindings/clock/qcom,gcc-ipq806x.h	2018-03-31 11:30:38.419446000 +0800
-+++ b/include/dt-bindings/clock/qcom,gcc-ipq806x.h	2018-03-31 11:32:02.535446000 +0800
+--- a/include/dt-bindings/clock/qcom,gcc-ipq806x.h
++++ b/include/dt-bindings/clock/qcom,gcc-ipq806x.h
 @@ -240,7 +240,7 @@
  #define PLL14					232
  #define PLL14_VOTE				233
@@ -19,8 +19,8 @@
 +#define CE5_CORE_CLK_SRC			287
  
  #endif
---- a/include/dt-bindings/reset/qcom,gcc-ipq806x.h	2018-03-31 11:33:08.147446000 +0800
-+++ b/include/dt-bindings/reset/qcom,gcc-ipq806x.h	2018-03-31 11:33:52.263446000 +0800
+--- a/include/dt-bindings/reset/qcom,gcc-ipq806x.h
++++ b/include/dt-bindings/reset/qcom,gcc-ipq806x.h
 @@ -163,5 +163,10 @@
  #define NSS_CAL_PRBS_RST_N_RESET			154
  #define NSS_LCKDT_RST_N_RESET				155
@@ -32,23 +32,13 @@
 +#define CRYPTO_AHB_RESET				161
  
  #endif
---- a/drivers/clk/qcom/Makefile	2018-03-31 11:26:20.819446000 +0800
-+++ b/drivers/clk/qcom/Makefile	2018-03-31 11:27:25.791446000 +0800
-@@ -22,6 +22,7 @@ obj-$(CONFIG_APQ_GCC_8084) += gcc-apq808
- obj-$(CONFIG_APQ_MMCC_8084) += mmcc-apq8084.o
- obj-$(CONFIG_IPQ_GCC_4019) += gcc-ipq4019.o
- obj-$(CONFIG_IPQ_GCC_806X) += gcc-ipq806x.o
-+obj-$(CONFIG_IPQ_GCC_806X) += nss-volt-ipq806x.o
- obj-$(CONFIG_IPQ_GCC_8074) += gcc-ipq8074.o
- obj-$(CONFIG_IPQ_LCC_806X) += lcc-ipq806x.o
- obj-$(CONFIG_MDM_GCC_9615) += gcc-mdm9615.o
---- a/drivers/clk/qcom/gcc-ipq806x.c	2018-03-31 14:11:50.866182000 +0800
-+++ b/drivers/clk/qcom/gcc-ipq806x.c	2018-03-31 14:12:57.330182000 +0800
+--- a/drivers/clk/qcom/gcc-ipq806x.c
++++ b/drivers/clk/qcom/gcc-ipq806x.c
 @@ -24,6 +24,10 @@
  #include "clk-branch.h"
  #include "clk-hfpll.h"
  #include "reset.h"
-+#include "nss-volt-ipq806x.h"
++#include <linux/regulator/nss-volt-ipq806x.h>
 +
 +/* NSS safe parent index which will be used during NSS PLL rate change */
 +static int gcc_ipq806x_nss_safe_parent;
@@ -507,20 +497,20 @@
  	[NSS_CH0_RST_TX_CLK_N_RESET] = { 0x3b60, 1 },
  	[NSS_CH0_RST_RX_125M_N_RESET] = { 0x3b60, 2 },
 @@ -3080,6 +3467,12 @@ static int gcc_ipq806x_probe(struct plat
-	if (!regmap)
-		return -ENODEV;
-
+ 	if (!regmap)
+ 		return -ENODEV;
+ 
 +	gcc_ipq806x_nss_safe_parent = qcom_find_src_index(&nss_core_clk.hw,
 +					gcc_pxo_pll8_pll14_pll18_pll0_map,
 +					P_PLL0);
 +	if (gcc_ipq806x_nss_safe_parent < 0)
 +		return gcc_ipq806x_nss_safe_parent;
 +
-	/* Setup PLL18 static bits */
-	regmap_update_bits(regmap, 0x31a4, 0xffffffc0, 0x40000400);
-	regmap_write(regmap, 0x31b0, 0x3080);
---- a/drivers/clk/qcom/clk-rcg.c	2018-02-17 03:09:48.000000000 +0800
-+++ b/drivers/clk/qcom/clk-rcg.c	2018-03-31 11:12:37.393203000 +0800
+ 	/* Setup PLL18 static bits */
+ 	regmap_update_bits(regmap, 0x31a4, 0xffffffc0, 0x40000400);
+ 	regmap_write(regmap, 0x31b0, 0x3080);
+--- a/drivers/clk/qcom/clk-rcg.c
++++ b/drivers/clk/qcom/clk-rcg.c
 @@ -805,6 +805,11 @@ static int clk_dyn_rcg_set_rate_and_pare
  	return __clk_dyn_rcg_set_rate(hw, rate);
  }
@@ -533,8 +523,8 @@
  const struct clk_ops clk_rcg_ops = {
  	.enable = clk_enable_regmap,
  	.disable = clk_disable_regmap,
---- a/drivers/clk/qcom/clk-rcg.h	2018-03-31 13:43:55.132488999 +0800
-+++ b/drivers/clk/qcom/clk-rcg.h	2018-03-31 13:45:03.644488999 +0800
+--- a/drivers/clk/qcom/clk-rcg.h
++++ b/drivers/clk/qcom/clk-rcg.h
 @@ -173,4 +173,7 @@ struct clk_rcg_dfs_data {
  extern int qcom_cc_register_rcg_dfs(struct regmap *regmap,
  				    const struct clk_rcg_dfs_data *rcgs,
