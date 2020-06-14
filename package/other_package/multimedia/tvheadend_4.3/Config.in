@@ -1,0 +1,39 @@
+config TVHEADEND_CWC_SUPPORT
+	bool "NewCamd support"
+	default y
+
+config TVHEADEND_LINUXDVB_SUPPORT
+	bool "Linux DVB support"
+	default y
+
+config TVHEADEND_DVBSCAN_SUPPORT
+	bool "Fetch ready-made DVB-scan data"
+	depends on TVHEADEND_LINUXDVB_SUPPORT
+	default TVHEADEND_LINUXDVB_SUPPORT
+
+config TVHEADEND_DVBCSA_SUPPORT
+	bool "Enable DVBCSA decryption library"
+	select PACKAGE_libdvbcsa
+	default n
+
+config TVHEADEND_AVAHI_SUPPORT
+	bool "Avahi client support"
+	select PACKAGE_libavahi-client
+	default n
+
+config TVHEADEND_HDHOMERUN_CLIENT_SUPPORT
+	bool "HDHomeRun client in Tvheadend"
+	default n
+
+config TVHEADEND_DISABLE_SATIP_SERVER_SUPPORT
+	bool "Disable SatIP server support"
+	default n
+
+config TVHEADEND_DISABLE_SATIP_CLIENT_SUPPORT
+        bool "Disable SatIP client support"
+        default n
+
+config TVHEADEND_ENABLE_BUNDLE
+        bool "Enable the Tvheadend bundle (this is required for the web interface)"
+	depends on @BUILD_NLS 
+        default n

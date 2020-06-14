@@ -1,0 +1,11 @@
+--- a/Makefile	2019-06-07 23:10:00.706063022 +0200
++++ b/Makefile	2019-05-27 21:47:21.327402303 +0200
+@@ -36,7 +36,7 @@
+ ifeq ($(CONFIG_CCDEBUG),yes)
+ CFLAGS  += -O0
+ else
+-CFLAGS  += -O2 -D_FORTIFY_SOURCE=2
++CFLAGS  += -O2 
+ endif
+ ifeq ($(CONFIG_PIE),yes)
+ CFLAGS  += -fPIE

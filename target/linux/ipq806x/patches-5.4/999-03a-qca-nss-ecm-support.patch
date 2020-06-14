@@ -1,5 +1,5 @@
---- a/include/linux/if_bridge.h	2020-05-16 15:34:51.050824644 +0800
-+++ b/include/linux/if_bridge.h	2020-05-16 15:35:29.238824644 +0800
+--- a/include/linux/if_bridge.h
++++ b/include/linux/if_bridge.h
 @@ -148,4 +148,39 @@ br_port_flag_is_set(const struct net_dev
  }
  #endif
@@ -40,8 +40,8 @@
 +/* QCA NSS ECM support - End */
 +
  #endif
---- a/include/linux/if_pppol2tp.h	2020-05-16 15:34:51.054824644 +0800
-+++ b/include/linux/if_pppol2tp.h	2020-05-16 15:35:29.238824644 +0800
+--- a/include/linux/if_pppol2tp.h
++++ b/include/linux/if_pppol2tp.h
 @@ -14,4 +14,30 @@
  #include <linux/in6.h>
  #include <uapi/linux/if_pppol2tp.h>
@@ -73,8 +73,8 @@
 +/* QCA NSS ECM support - End */
 +
  #endif
---- a/include/linux/if_pppox.h	2020-05-16 15:34:51.054824644 +0800
-+++ b/include/linux/if_pppox.h	2020-05-16 15:58:53.349416396 +0800
+--- a/include/linux/if_pppox.h
++++ b/include/linux/if_pppox.h
 @@ -93,4 +93,19 @@ enum {
      PPPOX_DEAD		= 16  /* dead, useless, please clean me up!*/
  };
@@ -95,8 +95,8 @@
 +/* QCA NSS ECM support - End */
 +
  #endif /* !(__LINUX_IF_PPPOX_H) */
---- a/include/linux/if_vlan.h	2020-05-16 15:34:51.058824644 +0800
-+++ b/include/linux/if_vlan.h	2020-05-16 15:35:29.238824644 +0800
+--- a/include/linux/if_vlan.h
++++ b/include/linux/if_vlan.h
 @@ -220,7 +220,28 @@ extern void vlan_vids_del_by_dev(struct
  
  extern bool vlan_uses_dev(const struct net_device *dev);
@@ -126,8 +126,8 @@
  static inline struct net_device *
  __vlan_find_dev_deep_rcu(struct net_device *real_dev,
  		     __be16 vlan_proto, u16 vlan_id)
---- a/include/linux/netdevice.h	2020-05-16 15:34:51.062824644 +0800
-+++ b/include/linux/netdevice.h	2020-05-16 15:35:29.238824644 +0800
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
 @@ -1581,6 +1581,20 @@ enum netdev_priv_flags {
  #define IFF_LIVE_RENAME_OK		IFF_LIVE_RENAME_OK
  #define IFF_NO_IP_ALIGN			IFF_NO_IP_ALIGN
@@ -168,8 +168,8 @@
  };
  const char *netdev_cmd_to_name(enum netdev_cmd cmd);
  
---- a/include/linux/ppp_channel.h	2020-05-16 15:34:51.062824644 +0800
-+++ b/include/linux/ppp_channel.h	2020-05-16 15:35:29.238824644 +0800
+--- a/include/linux/ppp_channel.h
++++ b/include/linux/ppp_channel.h
 @@ -32,6 +32,18 @@ struct ppp_channel_ops {
  #if IS_ENABLED(CONFIG_NF_FLOW_TABLE)
  	int	(*flow_offload_check)(struct ppp_channel *, struct flow_offload_hw_path *);
@@ -245,8 +245,8 @@
 +
  #endif /* __KERNEL__ */
  #endif
---- a/include/net/bond_3ad.h	2020-05-17 10:21:04.372732563 +0800
-+++ b/include/net/bond_3ad.h	2020-05-17 10:21:55.468732563 +0800
+--- a/include/net/bond_3ad.h
++++ b/include/net/bond_3ad.h
 @@ -307,5 +307,13 @@ void bond_3ad_update_lacp_rate(struct bo
  void bond_3ad_update_ad_actor_settings(struct bonding *bond);
  int bond_3ad_stats_fill(struct sk_buff *skb, struct bond_3ad_stats *stats);
@@ -261,8 +261,8 @@
 +/* QCA NSS ECM support - End */
  #endif /* _NET_BOND_3AD_H */
  
---- a/include/net/bonding.h	2020-05-16 16:52:59.409226393 +0800
-+++ b/include/net/bonding.h	2020-05-17 10:14:44.956732563 +0800
+--- a/include/net/bonding.h
++++ b/include/net/bonding.h
 @@ -749,4 +749,12 @@ static inline void bond_tx_drop(struct n
  	dev_kfree_skb_any(skb);
  }
@@ -276,8 +276,8 @@
 +				    __be16 *layer4hdr);
 +/* QCA NSS ECM support - End */
  #endif /* _NET_BONDING_H */
---- a/include/net/ip6_route.h	2020-05-16 15:34:51.066824644 +0800
-+++ b/include/net/ip6_route.h	2020-05-16 15:35:29.242824644 +0800
+--- a/include/net/ip6_route.h
++++ b/include/net/ip6_route.h
 @@ -209,6 +209,11 @@ void rt6_multipath_rebalance(struct fib6
  void rt6_uncached_list_add(struct rt6_info *rt);
  void rt6_uncached_list_del(struct rt6_info *rt);
@@ -290,8 +290,8 @@
  static inline const struct rt6_info *skb_rt6_info(const struct sk_buff *skb)
  {
  	const struct dst_entry *dst = skb_dst(skb);
---- a/include/net/neighbour.h	2020-05-16 15:34:51.070824644 +0800
-+++ b/include/net/neighbour.h	2020-05-16 15:35:29.242824644 +0800
+--- a/include/net/neighbour.h
++++ b/include/net/neighbour.h
 @@ -568,4 +568,15 @@ static inline void neigh_update_is_route
  		*notify = 1;
  	}
@@ -308,8 +308,8 @@
 +/* QCA NSS ECM support - End */
 +
  #endif
---- a/include/net/netfilter/nf_conntrack_extend.h	2020-05-16 15:34:51.070824644 +0800
-+++ b/include/net/netfilter/nf_conntrack_extend.h	2020-05-16 15:35:29.242824644 +0800
+--- a/include/net/netfilter/nf_conntrack_extend.h
++++ b/include/net/netfilter/nf_conntrack_extend.h
 @@ -31,6 +31,10 @@ enum nf_ct_ext_id {
  #if IS_ENABLED(CONFIG_NF_CONNTRACK_RTCACHE)
  	NF_CT_EXT_RTCACHE,
@@ -331,8 +331,8 @@
  
  /* Extensions: optional stuff which isn't permanently in struct. */
  struct nf_ct_ext {
---- a/include/net/route.h	2020-05-16 15:34:51.074824644 +0800
-+++ b/include/net/route.h	2020-05-16 15:35:29.242824644 +0800
+--- a/include/net/route.h
++++ b/include/net/route.h
 @@ -224,6 +224,11 @@ struct rtable *rt_dst_alloc(struct net_d
  			     bool nopolicy, bool noxfrm, bool will_cache);
  struct rtable *rt_dst_clone(struct net_device *dev, struct rtable *rt);
@@ -345,8 +345,8 @@
  struct in_ifaddr;
  void fib_add_ifaddr(struct in_ifaddr *);
  void fib_del_ifaddr(struct in_ifaddr *, struct in_ifaddr *);
---- a/include/uapi/linux/if_bonding.h	2020-05-16 15:34:51.074824644 +0800
-+++ b/include/uapi/linux/if_bonding.h	2020-05-16 15:37:20.066824644 +0800
+--- a/include/uapi/linux/if_bonding.h
++++ b/include/uapi/linux/if_bonding.h
 @@ -141,6 +141,23 @@ enum {
  };
  #define BOND_3AD_STAT_MAX (__BOND_3AD_STAT_MAX - 1)
@@ -371,8 +371,8 @@
  #endif /* _LINUX_IF_BONDING_H */
  
  /*
---- a/drivers/net/bonding/bond_3ad.c	2020-05-16 15:41:08.258824644 +0800
-+++ b/drivers/net/bonding/bond_3ad.c	2020-05-17 10:30:34.468732563 +0800
+--- a/drivers/net/bonding/bond_3ad.c
++++ b/drivers/net/bonding/bond_3ad.c
 @@ -121,6 +121,39 @@ static void ad_marker_response_received(
  					struct port *port);
  static void ad_update_actor_keys(struct port *port, bool reset);
@@ -571,8 +571,8 @@
 +	return NULL;
 +}
 +/* QCA NSS ECM support - End */
---- a/drivers/net/bonding/bond_main.c	2020-05-16 16:24:02.273236519 +0800
-+++ b/drivers/net/bonding/bond_main.c	2020-05-17 10:18:47.644732563 +0800
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
 @@ -847,6 +847,23 @@ void bond_change_active_slave(struct bon
  			if (BOND_MODE(bond) == BOND_MODE_8023AD)
  				bond_3ad_handle_link_change(new_active, BOND_LINK_UP);
@@ -887,8 +887,8 @@
  module_init(bonding_init);
  module_exit(bonding_exit);
  MODULE_LICENSE("GPL");
---- a/drivers/net/ppp/ppp_generic.c	2020-05-16 15:34:51.078824644 +0800
-+++ b/drivers/net/ppp/ppp_generic.c	2020-05-16 15:35:29.242824644 +0800
+--- a/drivers/net/ppp/ppp_generic.c
++++ b/drivers/net/ppp/ppp_generic.c
 @@ -48,6 +48,7 @@
  #include <net/slhc_vj.h>
  #include <linux/atomic.h>
@@ -1256,8 +1256,8 @@
  /* Module/initialization stuff */
  
  module_init(ppp_init);
---- a/drivers/net/ppp/pppoe.c	2020-05-16 15:34:51.078824644 +0800
-+++ b/drivers/net/ppp/pppoe.c	2020-05-16 15:35:29.242824644 +0800
+--- a/drivers/net/ppp/pppoe.c
++++ b/drivers/net/ppp/pppoe.c
 @@ -1004,11 +1004,79 @@ static int pppoe_flow_offload_check(stru
  }
  #endif /* CONFIG_NF_FLOW_TABLE */
@@ -1338,8 +1338,8 @@
  };
  
  static int pppoe_recvmsg(struct socket *sock, struct msghdr *m,
---- a/net/8021q/vlan_core.c	2020-05-16 15:34:51.082824644 +0800
-+++ b/net/8021q/vlan_core.c	2020-05-16 15:35:29.242824644 +0800
+--- a/net/8021q/vlan_core.c
++++ b/net/8021q/vlan_core.c
 @@ -551,4 +551,52 @@ static int __init vlan_offload_init(void
  	return 0;
  }
@@ -1393,8 +1393,8 @@
 +/* QCA NSS ECM support - End */
 +
  fs_initcall(vlan_offload_init);
---- a/net/bridge/br_fdb.c	2020-05-16 15:34:51.086824644 +0800
-+++ b/net/bridge/br_fdb.c	2020-05-16 15:35:29.242824644 +0800
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
 @@ -37,6 +37,35 @@ static int fdb_insert(struct net_bridge
  static void fdb_notify(struct net_bridge *br,
  		       const struct net_bridge_fdb_entry *, int, bool);
@@ -1540,8 +1540,8 @@
 +EXPORT_SYMBOL_GPL(br_fdb_has_entry);
 +/* QCA NSS ECM support - End */
 +
---- a/net/bridge/br_if.c	2020-05-16 15:34:51.086824644 +0800
-+++ b/net/bridge/br_if.c	2020-05-16 15:35:29.242824644 +0800
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
 @@ -26,6 +26,12 @@
  
  #include "br_private.h"
@@ -1638,8 +1638,8 @@
 +}
 +EXPORT_SYMBOL_GPL(br_port_dev_get);
 +/* QCA NSS ECM support - End */
---- a/net/bridge/br_private.h	2020-05-16 15:34:51.090824644 +0800
-+++ b/net/bridge/br_private.h	2020-05-16 15:35:29.242824644 +0800
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
 @@ -1258,4 +1258,9 @@ void br_do_proxy_suppress_arp(struct sk_
  void br_do_suppress_nd(struct sk_buff *skb, struct net_bridge *br,
  		       u16 vid, struct net_bridge_port *p, struct nd_msg *msg);
@@ -1650,8 +1650,8 @@
 +		(__hook ? (__hook(__args)) : (__default))
 +/* QCA NSS ECM support - End */
  #endif
---- a/net/core/neighbour.c	2020-05-16 15:34:51.090824644 +0800
-+++ b/net/core/neighbour.c	2020-05-16 15:35:29.246824644 +0800
+--- a/net/core/neighbour.c
++++ b/net/core/neighbour.c
 @@ -1202,7 +1202,21 @@ static void neigh_update_hhs(struct neig
  	}
  }
@@ -1716,8 +1716,8 @@
  
  	trace_neigh_update_done(neigh, err);
  
---- a/net/ipv4/fib_trie.c	2020-05-16 15:34:51.094824644 +0800
-+++ b/net/ipv4/fib_trie.c	2020-05-16 15:35:29.246824644 +0800
+--- a/net/ipv4/fib_trie.c
++++ b/net/ipv4/fib_trie.c
 @@ -1116,6 +1116,9 @@ static bool fib_valid_key_len(u32 key, u
  	return true;
  }
@@ -1769,8 +1769,8 @@
  struct fib_table *fib_trie_table(u32 id, struct fib_table *alias)
  {
  	struct fib_table *tb;
---- a/net/ipv6/addrconf.c	2020-05-17 09:51:07.336732563 +0800
-+++ b/net/ipv6/addrconf.c	2020-05-17 09:52:05.876732563 +0800
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
 @@ -7173,3 +7173,35 @@ void addrconf_cleanup(void)
  
  	destroy_workqueue(addrconf_wq);
@@ -1807,8 +1807,8 @@
 +EXPORT_SYMBOL(ipv6_dev_find);
 +/* QCA NSS ECM support - End */
 +
---- a/net/ipv6/ndisc.c	2020-05-17 09:53:51.232732563 +0800
-+++ b/net/ipv6/ndisc.c	2020-05-17 09:54:43.044732563 +0800
+--- a/net/ipv6/ndisc.c
++++ b/net/ipv6/ndisc.c
 @@ -646,6 +646,7 @@ void ndisc_send_ns(struct net_device *de
  
  	ndisc_send_skb(skb, daddr, saddr);
@@ -1817,8 +1817,8 @@
  
  void ndisc_send_rs(struct net_device *dev, const struct in6_addr *saddr,
  		   const struct in6_addr *daddr)
---- a/net/ipv6/route.c	2020-05-16 15:34:51.098824644 +0800
-+++ b/net/ipv6/route.c	2020-05-16 15:35:29.246824644 +0800
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
 @@ -3747,6 +3747,9 @@ out:
  	return ERR_PTR(err);
  }
@@ -1871,8 +1871,8 @@
  /*
   *	/proc
   */
---- a/net/l2tp/l2tp_ppp.c	2020-05-16 15:34:51.098824644 +0800
-+++ b/net/l2tp/l2tp_ppp.c	2020-05-16 15:35:29.246824644 +0800
+--- a/net/l2tp/l2tp_ppp.c
++++ b/net/l2tp/l2tp_ppp.c
 @@ -92,6 +92,7 @@
  #include <net/ip.h>
  #include <net/udp.h>
@@ -2044,8 +2044,8 @@
  module_init(pppol2tp_init);
  module_exit(pppol2tp_exit);
  
---- a/net/netfilter/Kconfig	2020-05-16 15:34:51.102824644 +0800
-+++ b/net/netfilter/Kconfig	2020-05-16 15:35:29.250824644 +0800
+--- a/net/netfilter/Kconfig
++++ b/net/netfilter/Kconfig
 @@ -158,6 +158,13 @@ config NF_CONNTRACK_TIMEOUT
  
  	  If unsure, say `N'.
@@ -2060,8 +2060,8 @@
  config NF_CONNTRACK_CHAIN_EVENTS
  	bool "Register multiple callbacks to ct events"
  	depends on NF_CONNTRACK_EVENTS
---- a/net/netfilter/Makefile	2020-05-16 15:34:51.102824644 +0800
-+++ b/net/netfilter/Makefile	2020-05-16 15:35:29.250824644 +0800
+--- a/net/netfilter/Makefile
++++ b/net/netfilter/Makefile
 @@ -14,6 +14,7 @@ nf_conntrack-$(CONFIG_NF_CONNTRACK_LABEL
  nf_conntrack-$(CONFIG_NF_CT_PROTO_DCCP) += nf_conntrack_proto_dccp.o
  nf_conntrack-$(CONFIG_NF_CT_PROTO_SCTP) += nf_conntrack_proto_sctp.o
