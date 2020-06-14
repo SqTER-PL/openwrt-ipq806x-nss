@@ -1821,20 +1821,21 @@ CONFIG_PACKAGE_kmod-scsi-core=y
 #
 # Cryptographic API modules
 #
+CONFIG_PACKAGE_kmod-crypto-acompress=y
 CONFIG_PACKAGE_kmod-crypto-aead=y
 CONFIG_PACKAGE_kmod-crypto-arc4=y
-# CONFIG_PACKAGE_kmod-crypto-authenc is not set
-# CONFIG_PACKAGE_kmod-crypto-cbc is not set
+CONFIG_PACKAGE_kmod-crypto-authenc=y
+CONFIG_PACKAGE_kmod-crypto-cbc=y
 CONFIG_PACKAGE_kmod-crypto-ccm=y
 CONFIG_PACKAGE_kmod-crypto-cmac=y
 CONFIG_PACKAGE_kmod-crypto-crc32c=y
 CONFIG_PACKAGE_kmod-crypto-ctr=y
 # CONFIG_PACKAGE_kmod-crypto-cts is not set
-# CONFIG_PACKAGE_kmod-crypto-deflate is not set
+CONFIG_PACKAGE_kmod-crypto-deflate=y
 CONFIG_PACKAGE_kmod-crypto-des=y
 CONFIG_PACKAGE_kmod-crypto-ecb=y
 # CONFIG_PACKAGE_kmod-crypto-ecdh is not set
-# CONFIG_PACKAGE_kmod-crypto-echainiv is not set
+CONFIG_PACKAGE_kmod-crypto-echainiv=y
 # CONFIG_PACKAGE_kmod-crypto-fcrypt is not set
 CONFIG_PACKAGE_kmod-crypto-gcm=y
 CONFIG_PACKAGE_kmod-crypto-gf128=y
@@ -1857,7 +1858,7 @@ CONFIG_PACKAGE_kmod-crypto-pcompress=y
 # CONFIG_PACKAGE_kmod-crypto-rmd160 is not set
 CONFIG_PACKAGE_kmod-crypto-rng=y
 CONFIG_PACKAGE_kmod-crypto-seqiv=y
-# CONFIG_PACKAGE_kmod-crypto-sha1 is not set
+CONFIG_PACKAGE_kmod-crypto-sha1=y
 CONFIG_PACKAGE_kmod-crypto-sha256=y
 CONFIG_PACKAGE_kmod-crypto-sha512=y
 # CONFIG_PACKAGE_kmod-crypto-test is not set
@@ -1985,11 +1986,14 @@ CONFIG_PACKAGE_kmod-hwmon-core=y
 # CONFIG_PACKAGE_kmod-iio-hmc5843 is not set
 # CONFIG_PACKAGE_kmod-iio-htu21 is not set
 # CONFIG_PACKAGE_kmod-iio-kfifo-buf is not set
+# CONFIG_PACKAGE_kmod-iio-lsm6dsx is not set
+# CONFIG_PACKAGE_kmod-iio-lsm6dsx-i2c is not set
+# CONFIG_PACKAGE_kmod-iio-lsm6dsx-spi is not set
 # CONFIG_PACKAGE_kmod-iio-si7020 is not set
 # CONFIG_PACKAGE_kmod-iio-sps30 is not set
 # CONFIG_PACKAGE_kmod-iio-st_accel is not set
-# CONFIG_PACKAGE_kmod-iio-st_sensors-i2c is not set
-# CONFIG_PACKAGE_kmod-iio-st_sensors-spi is not set
+# CONFIG_PACKAGE_kmod-iio-st_accel-i2c is not set
+# CONFIG_PACKAGE_kmod-iio-st_accel-spi is not set
 # CONFIG_PACKAGE_kmod-iio-tsl4531 is not set
 # CONFIG_PACKAGE_kmod-industrialio-triggered-buffer is not set
 # end of Industrial I/O Modules
@@ -2037,6 +2041,8 @@ CONFIG_PACKAGE_kmod-lib-crc16=y
 # CONFIG_PACKAGE_kmod-lib-crc7 is not set
 # CONFIG_PACKAGE_kmod-lib-crc8 is not set
 CONFIG_PACKAGE_kmod-lib-textsearch=y
+CONFIG_PACKAGE_kmod-lib-zlib-deflate=y
+CONFIG_PACKAGE_kmod-lib-zlib-inflate=y
 # end of Libraries
 
 #
@@ -2250,9 +2256,13 @@ CONFIG_PACKAGE_kmod-bonding=y
 # CONFIG_PACKAGE_kmod-geneve is not set
 # CONFIG_PACKAGE_kmod-gre is not set
 # CONFIG_PACKAGE_kmod-gre6 is not set
+# CONFIG_PACKAGE_kmod-ip-vti is not set
 # CONFIG_PACKAGE_kmod-ip6-tunnel is not set
+# CONFIG_PACKAGE_kmod-ip6-vti is not set
 # CONFIG_PACKAGE_kmod-ipip is not set
-# CONFIG_PACKAGE_kmod-ipsec is not set
+CONFIG_PACKAGE_kmod-ipsec=y
+# CONFIG_PACKAGE_kmod-ipsec4 is not set
+# CONFIG_PACKAGE_kmod-ipsec6 is not set
 # CONFIG_PACKAGE_kmod-iptunnel6 is not set
 # CONFIG_PACKAGE_kmod-isdn4linux is not set
 # CONFIG_PACKAGE_kmod-jool is not set
@@ -2288,21 +2298,24 @@ CONFIG_PACKAGE_kmod-pppoe=y
 CONFIG_PACKAGE_kmod-pppol2tp=y
 CONFIG_PACKAGE_kmod-pppox=y
 # CONFIG_PACKAGE_kmod-pptp is not set
-CONFIG_PACKAGE_kmod-qca-nss-ecm=y
+# CONFIG_PACKAGE_kmod-qca-nss-ecm-noload is not set
+# CONFIG_PACKAGE_kmod-qca-nss-ecm-premium is not set
 
 #
 # ECM Configuration
 #
 # CONFIG_QCA_NSS_ECM_EXAMPLES_PCC is not set
+# CONFIG_QCA_NSS_ECM_EXAMPLES_MARK is not set
+# CONFIG_QCA_NSS_ECM_OVS is not set
 # end of ECM Configuration
 
-# CONFIG_PACKAGE_kmod-qca-nss-ecm-noload is not set
-# CONFIG_PACKAGE_kmod-qca-nss-ecm-premium is not set
 # CONFIG_PACKAGE_kmod-qca-nss-ecm-premium-noload is not set
+CONFIG_PACKAGE_kmod-qca-nss-ecm-standard=y
 # CONFIG_PACKAGE_kmod-sched is not set
 # CONFIG_PACKAGE_kmod-sched-act-vlan is not set
 # CONFIG_PACKAGE_kmod-sched-bpf is not set
 # CONFIG_PACKAGE_kmod-sched-cake is not set
+# CONFIG_PACKAGE_kmod-sched-cake-virtual is not set
 # CONFIG_PACKAGE_kmod-sched-connmark is not set
 # CONFIG_PACKAGE_kmod-sched-core is not set
 # CONFIG_PACKAGE_kmod-sched-ctinfo is not set
@@ -2324,6 +2337,7 @@ CONFIG_PACKAGE_kmod-udptunnel6=y
 # CONFIG_PACKAGE_kmod-veth is not set
 # CONFIG_PACKAGE_kmod-vxlan is not set
 # CONFIG_PACKAGE_kmod-wireguard is not set
+# CONFIG_PACKAGE_kmod-xfrm-interface is not set
 # end of Network Support
 
 #
@@ -3691,7 +3705,6 @@ CONFIG_PACKAGE_libevent2=y
 # CONFIG_PACKAGE_libevent2-pthreads is not set
 # CONFIG_PACKAGE_libevhtp is not set
 # CONFIG_LIBEVHTP_BUILD_DEPENDS is not set
-# CONFIG_PACKAGE_libexfat is not set
 # CONFIG_PACKAGE_libexif is not set
 # CONFIG_PACKAGE_libexpat is not set
 # CONFIG_PACKAGE_libexslt is not set
@@ -5004,6 +5017,7 @@ CONFIG_PACKAGE_hostapd-openssl=y
 # CONFIG_DRIVER_WEXT_SUPPORT is not set
 CONFIG_DRIVER_11N_SUPPORT=y
 CONFIG_DRIVER_11AC_SUPPORT=y
+# CONFIG_DRIVER_11AX_SUPPORT is not set
 CONFIG_DRIVER_11W_SUPPORT=y
 # CONFIG_WPA_ENABLE_WEP is not set
 # CONFIG_PACKAGE_wpa-supplicant-basic is not set
@@ -5265,9 +5279,9 @@ CONFIG_PACKAGE_uclient-fetch=y
 # CONFIG_PACKAGE_vti is not set
 # CONFIG_PACKAGE_vxlan is not set
 # CONFIG_PACKAGE_wakeonlan is not set
-# CONFIG_PACKAGE_wol is not set
 # CONFIG_PACKAGE_wpan-tools is not set
 # CONFIG_PACKAGE_wwan is not set
+# CONFIG_PACKAGE_xfrm is not set
 # CONFIG_PACKAGE_xinetd is not set
 # end of Network
 
