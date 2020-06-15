@@ -41,22 +41,10 @@ enable_rps() {
 
 }
 
+
 start() {
 	local rps_enabled="$(uci_get nss @general[0] enable_rps)"
 	if [ "$rps_enabled" -eq 1 ]; then
 		enable_rps
-	fi
-
-	# Workaround router random reboot when NSS core frequency are scaled
-	if [ -f /proc/sys/dev/nss/clock/current_freq ]; then
-		. /lib/functions/uci-defaults.sh
-
-		local board=$(board_name)
-		case "$board" in
-			zyxel,nbg6817 | netgear,r7800)
-				echo 0 > /proc/sys/dev/nss/clock/auto_scale
-				echo 800000000 > /proc/sys/dev/nss/clock/current_freq
-				;;
-		esac
 	fi
 }
