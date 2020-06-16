@@ -1,0 +1,41 @@
+From cfa5740b5fb40c846a313cb1dbed7bf9a8b2689a Mon Sep 17 00:00:00 2001
+From: Ansuel Smith <ansuelsmth@gmail.com>
+Date: Sat, 29 Feb 2020 01:48:24 +0100
+Subject: [PATCH 6/6] cpufreq: use dedicated driver on qcom nvmem
+
+Use krait dedicated driver in qcom-cpufreq-nvmem if available
+
+Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+---
+ drivers/cpufreq/qcom-cpufreq-nvmem.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/cpufreq/qcom-cpufreq-nvmem.c b/drivers/cpufreq/qcom-cpufreq-nvmem.c
+index f0d2d5035413..a28d102ab75c 100644
+--- a/drivers/cpufreq/qcom-cpufreq-nvmem.c
++++ b/drivers/cpufreq/qcom-cpufreq-nvmem.c
+@@ -143,6 +143,7 @@ static int qcom_cpufreq_probe(struct platform_device *pdev)
+ 	struct device *cpu_dev;
+ 	unsigned cpu;
+ 	const struct of_device_id *match;
++	char * cpufreq_driver;
+ 	int ret;
+ 
+ 	cpu_dev = get_cpu_device(0);
+@@ -240,7 +241,12 @@ static int qcom_cpufreq_probe(struct platform_device *pdev)
+ 		}
+ 	}
+ 
+-	cpufreq_dt_pdev = platform_device_register_simple("cpufreq-dt", -1,
++	if (IS_ENABLED(CONFIG_ARM_QCOM_KRAIT_CPUFREQ_DT))
++		cpufreq_driver = "krait-cpufreq-dt";
++	else
++		cpufreq_driver = "cpufreq-dt";
++
++	cpufreq_dt_pdev = platform_device_register_simple(cpufreq_driver, -1,
+ 							  NULL, 0);
+ 	if (!IS_ERR(cpufreq_dt_pdev)) {
+ 		platform_set_drvdata(pdev, drv);
+-- 
+2.25.0
+

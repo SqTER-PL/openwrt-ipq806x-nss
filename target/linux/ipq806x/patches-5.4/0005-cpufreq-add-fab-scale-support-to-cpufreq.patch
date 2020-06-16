@@ -1,0 +1,46 @@
+From 7c699a825fb186984647dd20bf10b9e7f4039b3c Mon Sep 17 00:00:00 2001
+From: Ansuel Smith <ansuelsmth@gmail.com>
+Date: Sat, 22 Feb 2020 19:06:48 +0100
+Subject: [PATCH 5/6] cpufreq: add fab scale support to cpufreq
+
+Scale fabrics in the cpufreq driver if the fab-scaling
+driver is compiled.
+
+Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+---
+ drivers/cpufreq/krait-cpufreq-dt.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/drivers/cpufreq/krait-cpufreq-dt.c b/drivers/cpufreq/krait-cpufreq-dt.c
+index 9b285f938e5e..6289e22035a0 100644
+--- a/drivers/cpufreq/krait-cpufreq-dt.c
++++ b/drivers/cpufreq/krait-cpufreq-dt.c
+@@ -11,6 +11,10 @@
+ #include <linux/slab.h>
+ #include <linux/thermal.h>
+ 
++#ifdef CONFIG_QCOM_FAB_SCALING
++#include <linux/fab_scaling.h>
++#endif
++
+ #include "cpufreq-dt.h"
+ 
+ struct private_data {
+@@ -103,6 +107,14 @@ static int set_target(struct cpufreq_policy *policy, unsigned int index)
+ 					}
+ 				}
+ 			}
++#ifdef CONFIG_QCOM_FAB_SCALING
++			/*
++			 * Scale fabrics with max freq across all cores
++			 */
++			ret = scale_fabrics(target_freq);
++			if (ret)
++				return ret;
++#endif
+ 		}
+ 		arch_set_freq_scale(policy->related_cpus, freq,
+ 				    policy->cpuinfo.max_freq);
+-- 
+2.25.0
+

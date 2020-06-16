@@ -69,10 +69,10 @@
 		};
 
 		qcom,l2 {
-			qcom,l2-rates = <384000000 1000000000 1200000000>;
-			qcom,l2-cpufreq = <384000000 600000000 1200000000>;
-			qcom,l2-volt = <1100000 1100000 1150000>;
-			qcom,l2-supply = <&smb208_s1a>;
+			l2-rates = <384000000 1000000000 1200000000>;
+			l2-cpufreq = <384000000 600000000 1200000000>;
+			l2-volt = <1100000 1100000 1150000>;
+			l2-supply = <&smb208_s1a>;
 		};
 
 		idle-states {
@@ -560,7 +560,7 @@
 
 	firmware {
 		scm {
-			compatible = "qcom,scm-ipq806x";
+			compatible = "qcom,scm-ipq806x", "qcom,scm";
 		};
 	};
 
@@ -999,6 +999,9 @@
 		gcc: clock-controller@900000 {
 			compatible = "qcom,gcc-ipq8064";
 			reg = <0x00900000 0x4000>;
+
+			protected-clocks = <GSBI4_QUP_SRC>, <GSBI4_QUP_CLK>;
+
 			#clock-cells = <1>;
 			#reset-cells = <1>;
 			#power-domain-cells = <1>;
@@ -1031,16 +1034,16 @@
 		};
 
 		hs_phy_0: hs_phy_0 {
-			compatible = "qcom,dwc3-hs-usb-phy";
-			regmap = <&usb3_0>;
+			compatible = "qcom,ipq806x-usb-phy-hs";
+			reg = <0x110f8800 0x30>;
 			clocks = <&gcc USB30_0_UTMI_CLK>;
 			clock-names = "ref";
 			#phy-cells = <0>;
 		};
 
 		ss_phy_0: ss_phy_0 {
-			compatible = "qcom,dwc3-ss-usb-phy";
-			regmap = <&usb3_0>;
+			compatible = "qcom,ipq806x-usb-phy-ss";
+			reg = <0x110f8830 0x30>;
 			clocks = <&gcc USB30_0_MASTER_CLK>;
 			clock-names = "ref";
 			#phy-cells = <0>;
@@ -1073,16 +1076,16 @@
 		};
 
 		hs_phy_1: hs_phy_1 {
-			compatible = "qcom,dwc3-hs-usb-phy";
-			regmap = <&usb3_1>;
+			compatible = "qcom,ipq806x-usb-phy-hs";
+			reg = <0x100f8800 0x30>;
 			clocks = <&gcc USB30_1_UTMI_CLK>;
 			clock-names = "ref";
 			#phy-cells = <0>;
 		};
 
 		ss_phy_1: ss_phy_1 {
-			compatible = "qcom,dwc3-ss-usb-phy";
-			regmap = <&usb3_1>;
+			compatible = "qcom,ipq806x-usb-phy-ss";
+			reg = <0x100f8830 0x30>;
 			clocks = <&gcc USB30_1_MASTER_CLK>;
 			clock-names = "ref";
 			#phy-cells = <0>;
@@ -1163,6 +1166,12 @@
 
 			perst-gpios = <&qcom_pinmux 3 GPIO_ACTIVE_LOW>;
 
+			qcom,tx-deemph-gen1 = <24>;
+			qcom,tx-deemph-gen2-3p5db = <24>;
+			qcom,tx-deemph-gen2-6db = <34>;
+			qcom,tx-swing-full = <120>;
+			qcom,tx-swing-low = <120>;
+			qcom,rx0-eq = <4>;
 			phy-tx0-term-offset = <7>;
 
 			status = "disabled";
@@ -1217,6 +1226,12 @@
 
 			perst-gpios = <&qcom_pinmux 48 GPIO_ACTIVE_LOW>;
 
+			qcom,tx-deemph-gen1 = <24>;
+			qcom,tx-deemph-gen2-3p5db = <24>;
+			qcom,tx-deemph-gen2-6db = <34>;
+			qcom,tx-swing-full = <120>;
+			qcom,tx-swing-low = <120>;
+			qcom,rx0-eq = <4>;
 			phy-tx0-term-offset = <7>;
 
 			status = "disabled";
@@ -1271,6 +1286,12 @@
 
 			perst-gpios = <&qcom_pinmux 63 GPIO_ACTIVE_LOW>;
 
+			qcom,tx-deemph-gen1 = <24>;
+			qcom,tx-deemph-gen2-3p5db = <24>;
+			qcom,tx-deemph-gen2-6db = <34>;
+			qcom,tx-swing-full = <120>;
+			qcom,tx-swing-low = <120>;
+			qcom,rx0-eq = <4>;
 			phy-tx0-term-offset = <7>;
 
 			status = "disabled";
@@ -1335,12 +1356,10 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 
-			compatible = "qcom,ipq8064-mdio", "syscon";
+			compatible = "qcom,ipq8064-mdio";
 			reg = <0x37000000 0x200000>;
-			resets = <&gcc GMAC_CORE1_RESET>;
-			reset-names = "stmmaceth";
+
 			clocks = <&gcc GMAC_CORE1_CLK>;
-			clock-names = "stmmaceth";
 
 			status = "disabled";
 		};
@@ -1454,9 +1473,9 @@
 
 		nss0: nss@40000000 {
 			compatible = "qcom,nss";
-			qcom,low-frequency = <110000000>;
-			qcom,mid-frequency = <550000000>;
-			qcom,max-frequency = <733000000>;
+			qcom,low_frequency = <110000000>;
+			qcom,mid_frequency = <550000000>;
+			qcom,max_frequency = <733000000>;
 
 			interrupts = <GIC_SPI 213 IRQ_TYPE_LEVEL_HIGH>,
 				     <GIC_SPI 232 IRQ_TYPE_LEVEL_HIGH>;
@@ -1497,15 +1516,13 @@
 			qcom,tun6rd-enabled;
 			qcom,tunipip6-enabled;
 			qcom,vlan-enabled;
-			qcom,wlan-dataplane-offload-enabled;
-			qcom,wlanredirect-enabled;
 		};
 
 		nss1: nss@40800000 {
 			compatible = "qcom,nss";
-			qcom,low-frequency = <110000000>;
-			qcom,mid-frequency = <550000000>;
-			qcom,max-frequency = <733000000>;
+			qcom,low_frequency = <110000000>;
+			qcom,mid_frequency = <550000000>;
+			qcom,max_frequency = <733000000>;
 
 			interrupts = <GIC_SPI 214 IRQ_TYPE_LEVEL_HIGH>,
 				     <GIC_SPI 233 IRQ_TYPE_LEVEL_HIGH>;
@@ -1636,20 +1653,20 @@
 				dma-names = "tx", "rx";
 			};
 		};
-	};
 
-	nss-common {
-		compatible = "qcom,nss-common";
-		reg = <0x03000000 0x00001000>;
-		reg-names = "nss_fpb_base";
-		clocks = <&gcc NSS_CORE_CLK>, <&gcc NSSTCM_CLK>,
-			 <&rpmcc RPM_NSS_FABRIC_0_CLK>, <&rpmcc RPM_NSS_FABRIC_1_CLK>;
-		clock-names = "nss_core_clk", "nss_tcm_clk",
-			      "nss-fab0-clk", "nss-fab1-clk";
-		nss_core-supply = <&smb208_s1b>;
-		nss_core_vdd_nominal = <1100000>;
-		nss_core_vdd_high = <1150000>;
-		nss_core_threshold_freq = <733000000>;
+		nss-common {
+			compatible = "qcom,nss-common";
+			reg = <0x03000000 0x00001000>;
+			reg-names = "nss_fpb_base";
+			clocks = <&gcc NSS_CORE_CLK>, <&gcc NSSTCM_CLK>,
+				<&rpmcc RPM_NSS_FABRIC_0_CLK>, <&rpmcc RPM_NSS_FABRIC_1_CLK>;
+			clock-names = "nss_core_clk", "nss_tcm_clk",
+				"nss-fab0-clk", "nss-fab1-clk";
+			nss_core-supply = <&smb208_s1b>;
+			nss_core_vdd_nominal = <1100000>;
+			nss_core_vdd_high = <1150000>;
+			nss_core_threshold_freq = <733000000>;
+		};
 	};
 
 	sfpb_mutex: sfpb-mutex {

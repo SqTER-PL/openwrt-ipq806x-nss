@@ -1,0 +1,80 @@
+From 4f8e7b35f2bc0d55c71e0363f1475ad4ae8c5957 Mon Sep 17 00:00:00 2001
+From: Ansuel Smith <ansuelsmth@gmail.com>
+Date: Sat, 22 Feb 2020 17:04:28 +0100
+Subject: [PATCH 4/6] Documentation: clock: add qcom,fab-scaling bindings
+
+Document new devicetree binding for the fab-scaling driver
+
+Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+---
+ .../bindings/clock/qcom,fab-scaling.yaml      | 58 +++++++++++++++++++
+ 1 file changed, 58 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/clock/qcom,fab-scaling.yaml
+
+diff --git a/Documentation/devicetree/bindings/clock/qcom,fab-scaling.yaml b/Documentation/devicetree/bindings/clock/qcom,fab-scaling.yaml
+new file mode 100644
+index 000000000000..779046df9ce2
+--- /dev/null
++++ b/Documentation/devicetree/bindings/clock/qcom,fab-scaling.yaml
+@@ -0,0 +1,58 @@
++# SPDX-License-Identifier: GPL-2.0
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/clock/qcom,fab-scaling.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Qualcomm Fab Scaling Driver
++
++maintainers:
++  - Ansuel Smith <ansuelsmth@gmail.com>
++
++description: |
++  Qualcomm Fab Scaling Driver used on Ipq806x SoCs to set the DDR and
++  APPS clk to idle.
++
++properties:
++  compatible:
++    const: qcom,fab-scaling
++
++  clocks:
++    items:
++      - description: APPS FAB Clk 
++      - description: DDR FAB Clk
++
++  clock-names:
++    items:
++      - const: apps-fab-clk
++      - const: ddr-fab-clk
++  
++  fab_freq_high:
++    description:
++      Fab Frequency when the system is loaded. (Default 533000000)
++  
++
++  fab_freq_nominal:
++    description:
++      Fab Frequency when the system is idle. (Default 400000000)
++  
++  cpu_freq_threshold:
++    description:
++      CPU frequency after the driver will scale from nominal to high.
++      (Default 1000000000)
++
++required:
++  - compatible
++  - clocks
++  - clock-names
++
++examples:
++  - |
++    fab-scaling {
++      compatible = "qcom,fab-scaling";
++      clocks = <&rpmcc RPM_APPS_FABRIC_A_CLK>, <&rpmcc RPM_EBI1_A_CLK>;
++      clock-names = "apps-fab-clk", "ddr-fab-clk";
++      fab_freq_high = <533000000>;
++      fab_freq_nominal = <400000000>;
++      cpu_freq_threshold = <1000000000>;
++    };
+-- 
+2.25.0
+

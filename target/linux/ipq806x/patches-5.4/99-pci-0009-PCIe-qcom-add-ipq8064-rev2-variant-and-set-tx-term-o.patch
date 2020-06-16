@@ -1,0 +1,74 @@
+From d9902ceab06c2375d8628d29975f57d407403343 Mon Sep 17 00:00:00 2001
+From: Sham Muthayyan <smuthayy@codeaurora.org>
+Date: Fri, 20 Mar 2020 01:53:03 +0100
+Subject: [PATCH 09/11] PCIe: qcom: add ipq8064 rev2 variant and set tx term
+ offset
+
+Add tx term offset support to pcie qcom driver need in some revision of
+the ipq806x SoC.
+Ipq8064 have tx term offset set to 7.
+Ipq8064 v2 revision and ipq8065 have the tx term offset set to 0.
+
+Signed-off-by: Sham Muthayyan <smuthayy@codeaurora.org>
+Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+---
+ drivers/pci/controller/dwc/pcie-qcom.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
+index 7708c31dc010..c94faad449e5 100644
+--- a/drivers/pci/controller/dwc/pcie-qcom.c
++++ b/drivers/pci/controller/dwc/pcie-qcom.c
+@@ -45,6 +45,9 @@
+ #define PCIE_CAP_CPL_TIMEOUT_DISABLE		0x10
+ 
+ #define PCIE20_PARF_PHY_CTRL			0x40
++#define PHY_CTRL_PHY_TX0_TERM_OFFSET_MASK	GENMASK(12, 16)
++#define PHY_CTRL_PHY_TX0_TERM_OFFSET(x)		((x) << 16)
++
+ #define PCIE20_PARF_PHY_REFCLK			0x4C
+ #define PHY_REFCLK_SSP_EN			BIT(16)
+ #define PHY_REFCLK_USE_PAD			BIT(12)
+@@ -118,6 +121,7 @@ struct qcom_pcie_resources_2_1_0 {
+ 	u32 tx_swing_full;
+ 	u32 tx_swing_low;
+ 	u32 rx0_eq;
++	u8 phy_tx0_term_offset;
+ };
+ 
+ struct qcom_pcie_resources_1_0_0 {
+@@ -318,6 +322,11 @@ static int qcom_pcie_get_resources_2_1_0(struct qcom_pcie *pcie)
+ 	if (IS_ERR(res->ext_reset))
+ 		return PTR_ERR(res->ext_reset);
+ 
++	if (of_device_is_compatible(dev->of_node, "qcom,pcie-ipq8064"))
++		res->phy_tx0_term_offset = 7;
++	else
++		res->phy_tx0_term_offset = 0;
++
+ 	res->phy_reset = devm_reset_control_get_exclusive(dev, "phy");
+ 	return PTR_ERR_OR_ZERO(res->phy_reset);
+ }
+@@ -402,6 +411,11 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
+ 	/* enable PCIe clocks and resets */
+ 	qcom_clear_and_set_dword(pcie->parf + PCIE20_PARF_PHY_CTRL, BIT(0), 0);
+ 
++	/* set TX termination offset */
++	qcom_clear_and_set_dword(pcie->parf + PCIE20_PARF_PHY_CTRL,
++			PHY_CTRL_PHY_TX0_TERM_OFFSET_MASK,
++			PHY_CTRL_PHY_TX0_TERM_OFFSET(res->phy_tx0_term_offset));
++
+ 	writel(PCS_DEEMPH_TX_DEEMPH_GEN1(res->tx_deemph_gen1) |
+ 	       PCS_DEEMPH_TX_DEEMPH_GEN2_3_5DB(res->tx_deemph_gen2_3p5db) |
+ 	       PCS_DEEMPH_TX_DEEMPH_GEN2_6DB(tx_deemph_gen2_6db),
+@@ -1485,6 +1499,7 @@ static int qcom_pcie_probe(struct platform_device *pdev)
+ static const struct of_device_id qcom_pcie_match[] = {
+ 	{ .compatible = "qcom,pcie-apq8084", .data = &ops_1_0_0 },
+ 	{ .compatible = "qcom,pcie-ipq8064", .data = &ops_2_1_0 },
++	{ .compatible = "qcom,pcie-ipq8064-v2", .data = &ops_2_1_0 },
+ 	{ .compatible = "qcom,pcie-apq8064", .data = &ops_2_1_0 },
+ 	{ .compatible = "qcom,pcie-msm8996", .data = &ops_2_3_2 },
+ 	{ .compatible = "qcom,pcie-ipq8074", .data = &ops_2_3_3 },
+-- 
+2.25.1
+

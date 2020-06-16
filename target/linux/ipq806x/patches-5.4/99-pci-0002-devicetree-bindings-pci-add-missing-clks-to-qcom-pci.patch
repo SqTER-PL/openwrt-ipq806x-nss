@@ -1,0 +1,43 @@
+From 6d27cb1161dbf8f4809d3d8f0802c551672d9591 Mon Sep 17 00:00:00 2001
+From: Ansuel Smith <ansuelsmth@gmail.com>
+Date: Fri, 20 Mar 2020 00:36:03 +0100
+Subject: [PATCH 02/11] devicetree: bindings: pci: add missing clks to
+ qcom,pcie
+
+Document missing clks used in ipq806x soc.
+
+Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+Acked-by: Rob Herring <robh@kernel.org>
+---
+ Documentation/devicetree/bindings/pci/qcom,pcie.txt | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/pci/qcom,pcie.txt b/Documentation/devicetree/bindings/pci/qcom,pcie.txt
+index 981b4de12807..becdbdc0fffa 100644
+--- a/Documentation/devicetree/bindings/pci/qcom,pcie.txt
++++ b/Documentation/devicetree/bindings/pci/qcom,pcie.txt
+@@ -90,6 +90,8 @@
+ 	Definition: Should contain the following entries
+ 			- "core"	Clocks the pcie hw block
+ 			- "phy"		Clocks the pcie PHY block
++			- "aux" 	Clocks the pcie AUX block
++			- "ref" 	Clocks the pcie ref block
+ - clock-names:
+ 	Usage: required for apq8084/ipq4019
+ 	Value type: <stringlist>
+@@ -277,8 +279,10 @@
+ 				<0 0 0 4 &intc 0 39 IRQ_TYPE_LEVEL_HIGH>; /* int_d */
+ 		clocks = <&gcc PCIE_A_CLK>,
+ 			 <&gcc PCIE_H_CLK>,
+-			 <&gcc PCIE_PHY_CLK>;
+-		clock-names = "core", "iface", "phy";
++			 <&gcc PCIE_PHY_CLK>,
++			 <&gcc PCIE_AUX_CLK>,
++			 <&gcc PCIE_ALT_REF_CLK>;
++		clock-names = "core", "iface", "phy", "aux", "ref";
+ 		resets = <&gcc PCIE_ACLK_RESET>,
+ 			 <&gcc PCIE_HCLK_RESET>,
+ 			 <&gcc PCIE_POR_RESET>,
+-- 
+2.25.1
+

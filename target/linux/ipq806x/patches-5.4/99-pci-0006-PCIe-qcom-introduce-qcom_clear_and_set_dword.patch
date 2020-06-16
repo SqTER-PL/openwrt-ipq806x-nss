@@ -1,0 +1,217 @@
+From 7a93fd69d4e06303362986f625d9e55d6aaeff58 Mon Sep 17 00:00:00 2001
+From: Ansuel Smith <ansuelsmth@gmail.com>
+Date: Thu, 30 Apr 2020 01:27:03 +0200
+Subject: [PATCH 06/11] PCIe: qcom: introduce qcom_clear_and_set_dword
+
+Use qcom_clear_and_set_dword instead of use the same code
+many times in the entire driver.
+
+Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+---
+ drivers/pci/controller/dwc/pcie-qcom.c | 108 ++++++++++---------------
+ 1 file changed, 41 insertions(+), 67 deletions(-)
+
+diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
+index 921030a64bab..23a549be5dbd 100644
+--- a/drivers/pci/controller/dwc/pcie-qcom.c
++++ b/drivers/pci/controller/dwc/pcie-qcom.c
+@@ -184,6 +184,16 @@ struct qcom_pcie {
+ 
+ #define to_qcom_pcie(x)		dev_get_drvdata((x)->dev)
+ 
++static inline void qcom_clear_and_set_dword(void __iomem *addr, u32 clear_mask,
++				     u32 set_mask)
++{
++	u32 val = readl(addr);
++
++	val &= ~clear_mask;
++	val |= set_mask;
++	writel(val, addr);
++}
++
+ static void qcom_ep_reset_assert(struct qcom_pcie *pcie)
+ {
+ 	gpiod_set_value_cansleep(pcie->reset, 1);
+@@ -214,12 +224,9 @@ static int qcom_pcie_establish_link(struct qcom_pcie *pcie)
+ 
+ static void qcom_pcie_2_1_0_ltssm_enable(struct qcom_pcie *pcie)
+ {
+-	u32 val;
+-
+ 	/* enable link training */
+-	val = readl(pcie->elbi + PCIE20_ELBI_SYS_CTRL);
+-	val |= PCIE20_ELBI_SYS_CTRL_LT_ENABLE;
+-	writel(val, pcie->elbi + PCIE20_ELBI_SYS_CTRL);
++	qcom_clear_and_set_dword(pcie->elbi + PCIE20_ELBI_SYS_CTRL, 0,
++				 PCIE20_ELBI_SYS_CTRL_LT_ENABLE);
+ }
+ 
+ static int qcom_pcie_get_resources_2_1_0(struct qcom_pcie *pcie)
+@@ -304,7 +311,6 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
+ 	struct qcom_pcie_resources_2_1_0 *res = &pcie->res.v2_1_0;
+ 	struct dw_pcie *pci = pcie->pci;
+ 	struct device *dev = pci->dev;
+-	u32 val;
+ 	int ret;
+ 
+ 	ret = regulator_bulk_enable(ARRAY_SIZE(res->supplies), res->supplies);
+@@ -360,14 +366,11 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
+ 	}
+ 
+ 	/* enable PCIe clocks and resets */
+-	val = readl(pcie->parf + PCIE20_PARF_PHY_CTRL);
+-	val &= ~BIT(0);
+-	writel(val, pcie->parf + PCIE20_PARF_PHY_CTRL);
++	qcom_clear_and_set_dword(pcie->parf + PCIE20_PARF_PHY_CTRL, BIT(0), 0);
+ 
+ 	/* enable external reference clock */
+-	val = readl(pcie->parf + PCIE20_PARF_PHY_REFCLK);
+-	val |= BIT(16);
+-	writel(val, pcie->parf + PCIE20_PARF_PHY_REFCLK);
++	qcom_clear_and_set_dword(pcie->parf + PCIE20_PARF_PHY_REFCLK, 0,
++				 BIT(16));
+ 
+ 	ret = reset_control_deassert(res->phy_reset);
+ 	if (ret) {
+@@ -514,10 +517,9 @@ static int qcom_pcie_init_1_0_0(struct qcom_pcie *pcie)
+ 	writel(0, pcie->parf + PCIE20_PARF_DBI_BASE_ADDR);
+ 
+ 	if (IS_ENABLED(CONFIG_PCI_MSI)) {
+-		u32 val = readl(pcie->parf + PCIE20_PARF_AXI_MSTR_WR_ADDR_HALT);
+-
+-		val |= BIT(31);
+-		writel(val, pcie->parf + PCIE20_PARF_AXI_MSTR_WR_ADDR_HALT);
++		qcom_clear_and_set_dword(
++			pcie->parf + PCIE20_PARF_AXI_MSTR_WR_ADDR_HALT, 0,
++			BIT(31));
+ 	}
+ 
+ 	return 0;
+@@ -537,12 +539,8 @@ static int qcom_pcie_init_1_0_0(struct qcom_pcie *pcie)
+ 
+ static void qcom_pcie_2_3_2_ltssm_enable(struct qcom_pcie *pcie)
+ {
+-	u32 val;
+-
+ 	/* enable link training */
+-	val = readl(pcie->parf + PCIE20_PARF_LTSSM);
+-	val |= BIT(8);
+-	writel(val, pcie->parf + PCIE20_PARF_LTSSM);
++	qcom_clear_and_set_dword(pcie->parf + PCIE20_PARF_LTSSM, 0, BIT(8));
+ }
+ 
+ static int qcom_pcie_get_resources_2_3_2(struct qcom_pcie *pcie)
+@@ -603,7 +601,6 @@ static int qcom_pcie_init_2_3_2(struct qcom_pcie *pcie)
+ 	struct qcom_pcie_resources_2_3_2 *res = &pcie->res.v2_3_2;
+ 	struct dw_pcie *pci = pcie->pci;
+ 	struct device *dev = pci->dev;
+-	u32 val;
+ 	int ret;
+ 
+ 	ret = regulator_bulk_enable(ARRAY_SIZE(res->supplies), res->supplies);
+@@ -637,25 +634,19 @@ static int qcom_pcie_init_2_3_2(struct qcom_pcie *pcie)
+ 	}
+ 
+ 	/* enable PCIe clocks and resets */
+-	val = readl(pcie->parf + PCIE20_PARF_PHY_CTRL);
+-	val &= ~BIT(0);
+-	writel(val, pcie->parf + PCIE20_PARF_PHY_CTRL);
++	qcom_clear_and_set_dword(pcie->parf + PCIE20_PARF_PHY_CTRL, BIT(0), 0);
+ 
+ 	/* change DBI base address */
+ 	writel(0, pcie->parf + PCIE20_PARF_DBI_BASE_ADDR);
+ 
+ 	/* MAC PHY_POWERDOWN MUX DISABLE  */
+-	val = readl(pcie->parf + PCIE20_PARF_SYS_CTRL);
+-	val &= ~BIT(29);
+-	writel(val, pcie->parf + PCIE20_PARF_SYS_CTRL);
++	qcom_clear_and_set_dword(pcie->parf + PCIE20_PARF_SYS_CTRL, BIT(29), 0);
+ 
+-	val = readl(pcie->parf + PCIE20_PARF_MHI_CLOCK_RESET_CTRL);
+-	val |= BIT(4);
+-	writel(val, pcie->parf + PCIE20_PARF_MHI_CLOCK_RESET_CTRL);
++	qcom_clear_and_set_dword(pcie->parf + PCIE20_PARF_MHI_CLOCK_RESET_CTRL,
++				 0, BIT(4));
+ 
+-	val = readl(pcie->parf + PCIE20_PARF_AXI_MSTR_WR_ADDR_HALT_V2);
+-	val |= BIT(31);
+-	writel(val, pcie->parf + PCIE20_PARF_AXI_MSTR_WR_ADDR_HALT_V2);
++	qcom_clear_and_set_dword(
++		pcie->parf + PCIE20_PARF_AXI_MSTR_WR_ADDR_HALT_V2, 0, BIT(31));
+ 
+ 	return 0;
+ 
+@@ -792,7 +783,6 @@ static int qcom_pcie_init_2_4_0(struct qcom_pcie *pcie)
+ 	struct qcom_pcie_resources_2_4_0 *res = &pcie->res.v2_4_0;
+ 	struct dw_pcie *pci = pcie->pci;
+ 	struct device *dev = pci->dev;
+-	u32 val;
+ 	int ret;
+ 
+ 	ret = reset_control_assert(res->axi_m_reset);
+@@ -918,25 +908,19 @@ static int qcom_pcie_init_2_4_0(struct qcom_pcie *pcie)
+ 		goto err_clks;
+ 
+ 	/* enable PCIe clocks and resets */
+-	val = readl(pcie->parf + PCIE20_PARF_PHY_CTRL);
+-	val &= ~BIT(0);
+-	writel(val, pcie->parf + PCIE20_PARF_PHY_CTRL);
++	qcom_clear_and_set_dword(pcie->parf + PCIE20_PARF_PHY_CTRL, BIT(0), 0);
+ 
+ 	/* change DBI base address */
+ 	writel(0, pcie->parf + PCIE20_PARF_DBI_BASE_ADDR);
+ 
+ 	/* MAC PHY_POWERDOWN MUX DISABLE  */
+-	val = readl(pcie->parf + PCIE20_PARF_SYS_CTRL);
+-	val &= ~BIT(29);
+-	writel(val, pcie->parf + PCIE20_PARF_SYS_CTRL);
++	qcom_clear_and_set_dword(pcie->parf + PCIE20_PARF_SYS_CTRL, BIT(29), 0);
+ 
+-	val = readl(pcie->parf + PCIE20_PARF_MHI_CLOCK_RESET_CTRL);
+-	val |= BIT(4);
+-	writel(val, pcie->parf + PCIE20_PARF_MHI_CLOCK_RESET_CTRL);
++	qcom_clear_and_set_dword(pcie->parf + PCIE20_PARF_MHI_CLOCK_RESET_CTRL,
++				 0, BIT(4));
+ 
+-	val = readl(pcie->parf + PCIE20_PARF_AXI_MSTR_WR_ADDR_HALT_V2);
+-	val |= BIT(31);
+-	writel(val, pcie->parf + PCIE20_PARF_AXI_MSTR_WR_ADDR_HALT_V2);
++	qcom_clear_and_set_dword(
++		pcie->parf + PCIE20_PARF_AXI_MSTR_WR_ADDR_HALT_V2, 0, BIT(31));
+ 
+ 	return 0;
+ 
+@@ -1017,7 +1001,6 @@ static int qcom_pcie_init_2_3_3(struct qcom_pcie *pcie)
+ 	struct dw_pcie *pci = pcie->pci;
+ 	struct device *dev = pci->dev;
+ 	int i, ret;
+-	u32 val;
+ 
+ 	for (i = 0; i < ARRAY_SIZE(res->rst); i++) {
+ 		ret = reset_control_assert(res->rst[i]);
+@@ -1077,9 +1060,7 @@ static int qcom_pcie_init_2_3_3(struct qcom_pcie *pcie)
+ 	writel(SLV_ADDR_SPACE_SZ,
+ 		pcie->parf + PCIE20_v3_PARF_SLV_ADDR_SPACE_SIZE);
+ 
+-	val = readl(pcie->parf + PCIE20_PARF_PHY_CTRL);
+-	val &= ~BIT(0);
+-	writel(val, pcie->parf + PCIE20_PARF_PHY_CTRL);
++	qcom_clear_and_set_dword(pcie->parf + PCIE20_PARF_PHY_CTRL, BIT(0), 0);
+ 
+ 	writel(0, pcie->parf + PCIE20_PARF_DBI_BASE_ADDR);
+ 
+@@ -1093,9 +1074,8 @@ static int qcom_pcie_init_2_3_3(struct qcom_pcie *pcie)
+ 	writel(DBI_RO_WR_EN, pci->dbi_base + PCIE20_MISC_CONTROL_1_REG);
+ 	writel(PCIE_CAP_LINK1_VAL, pci->dbi_base + PCIE20_CAP_LINK_1);
+ 
+-	val = readl(pci->dbi_base + PCIE20_CAP_LINK_CAPABILITIES);
+-	val &= ~PCIE20_CAP_ACTIVE_STATE_LINK_PM_SUPPORT;
+-	writel(val, pci->dbi_base + PCIE20_CAP_LINK_CAPABILITIES);
++	qcom_clear_and_set_dword(pci->dbi_base + PCIE20_CAP_LINK_CAPABILITIES,
++				 PCIE20_CAP_ACTIVE_STATE_LINK_PM_SUPPORT, 0);
+ 
+ 	writel(PCIE_CAP_CPL_TIMEOUT_DISABLE, pci->dbi_base +
+ 		PCIE20_DEVICE_CONTROL2_STATUS2);
+-- 
+2.25.1
+

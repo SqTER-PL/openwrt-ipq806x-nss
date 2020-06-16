@@ -1,0 +1,101 @@
+From 423662b4a805c1c518a8b3ec6738656491ba7c17 Mon Sep 17 00:00:00 2001
+From: Ansuel Smith <ansuelsmth@gmail.com>
+Date: Sat, 22 Feb 2020 18:02:17 +0100
+Subject: [PATCH 2/6] Documentation: cpufreq: add qcom,krait-cpufreq bindings
+
+Document dedicated cpufreq for Krait CPUs
+
+Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+---
+ .../bindings/cpufreq/krait-cpufreq.yaml       | 79 +++++++++++++++++++
+ 1 file changed, 79 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/cpufreq/krait-cpufreq.yaml
+
+diff --git a/Documentation/devicetree/bindings/cpufreq/krait-cpufreq.yaml b/Documentation/devicetree/bindings/cpufreq/krait-cpufreq.yaml
+new file mode 100644
+index 000000000000..9862c35f86c9
+--- /dev/null
++++ b/Documentation/devicetree/bindings/cpufreq/krait-cpufreq.yaml
+@@ -0,0 +1,79 @@
++# SPDX-License-Identifier: GPL-2.0
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/cpufreq/krait-cpufreq.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Krait Cpu Frequency Scaling dedicated driver
++
++maintainers:
++  - Ansuel Smith <ansuelsmth@gmail.com>
++
++description: |
++  The krait cpufreq driver is a dedicated frequency scaling driver
++  based on cpufreq-dt generic driver that scale L2 cache and optionally
++  DDR and APPS (if the driver is compiled) on cpu frequency change.
++
++  Cache is scaled with the max frequency across all core and the cache
++  frequency will scale based on the configured threshold in the dts.
++
++  The cache is hardcoded to 3 frequency bin, idle, nominal and high.
++
++properties:
++  compatible:
++    const: qcom,krait-cpufreq
++
++  'l2-rates':
++    description: |
++      Frequency the L2 cache will be scaled at.
++    items:
++      - description: idle
++      - description: nominal
++      - description: high
++
++  l2-cpufreq:
++    description: |
++      Threshold used by the driver to scale the L2 cache.
++      If the max CPU Frequency is more than the set frequency,
++      the driver will transition to the next frequency bin.
++    items:
++      - description: idle
++      - description: nominal
++      - description: high
++
++  l2-volt:
++    description: |
++      Threshold used by the driver to scale the L2 cache.
++      If the max CPU Frequency is more than the set frequency,
++      the driver will transition to the next frequency bin.
++    items:
++      - description: idle
++      - description: nominal
++      - description: high
++
++  l2-supply:
++    description: |
++      Phandle to the L2 regulator supply.
++
++required:
++  - compatible
++  - l2-rates
++  - l2-cpufreq
++
++examples:
++  - |
++    cpus {
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      ...
++
++      qcom,l2-scaling {
++        compatible = "qcom,krait-cpufreq";
++        l2-rates = <384000000 1000000000 1200000000>;
++        l2-cpufreq = <384000000 600000000 1200000000>;
++        l2-volt = <1100000 1100000 1150000>;
++        l2-supply = <&smb208_s1a>;
++      };
++
++    };
+-- 
+2.25.0
+

@@ -1,0 +1,76 @@
+From 043b2c3ffd96ca0d7bbebaa65fb17e6d4102cb64 Mon Sep 17 00:00:00 2001
+From: Sham Muthayyan <smuthayy@codeaurora.org>
+Date: Fri, 20 Mar 2020 02:06:54 +0100
+Subject: [PATCH 11/11] PCIe: qcom: add Force GEN1 support
+
+Add Force GEN1 support needed in some ipq806x board
+that needs to limit some pcie line to gen1 for some
+hardware limitation.
+This is set by the max-link-speed dts entry and needed
+by some soc based on ipq806x. (for example Netgear R7800
+router)
+
+Signed-off-by: Sham Muthayyan <smuthayy@codeaurora.org>
+Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+---
+ drivers/pci/controller/dwc/pcie-qcom.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
+index c94faad449e5..ad32baa3e380 100644
+--- a/drivers/pci/controller/dwc/pcie-qcom.c
++++ b/drivers/pci/controller/dwc/pcie-qcom.c
+@@ -27,6 +27,7 @@
+ #include <linux/slab.h>
+ #include <linux/types.h>
+ 
++#include "../../pci.h"
+ #include "pcie-designware.h"
+ 
+ #define PCIE20_PARF_SYS_CTRL			0x00
+@@ -99,6 +100,8 @@
+ #define PCIE20_v3_PARF_SLV_ADDR_SPACE_SIZE	0x358
+ #define SLV_ADDR_SPACE_SZ			0x10000000
+ 
++#define PCIE20_LNK_CONTROL2_LINK_STATUS2	0xa0
++
+ #define QCOM_PCIE_2_1_0_MAX_SUPPLY	3
+ struct qcom_pcie_resources_2_1_0 {
+ 	struct clk *iface_clk;
+@@ -205,6 +208,7 @@ struct qcom_pcie {
+ 	struct phy *phy;
+ 	struct gpio_desc *reset;
+ 	const struct qcom_pcie_ops *ops;
++	int gen;
+ };
+ 
+ #define to_qcom_pcie(x)		dev_get_drvdata((x)->dev)
+@@ -462,6 +466,14 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
+ 	/* wait for clock acquisition */
+ 	usleep_range(1000, 1500);
+ 
++	if (pcie->gen == 1) {
++		u32 val = readl(pci->dbi_base +
++				PCIE20_LNK_CONTROL2_LINK_STATUS2);
++
++		writel(val | 1, pci->dbi_base +
++		       PCIE20_LNK_CONTROL2_LINK_STATUS2);
++	}
++
+ 
+ 	/* Set the Max TLP size to 2K, instead of using default of 4K */
+ 	writel(CFG_REMOTE_RD_REQ_BRIDGE_SIZE_2K,
+@@ -1431,6 +1443,10 @@ static int qcom_pcie_probe(struct platform_device *pdev)
+ 		goto err_pm_runtime_put;
+ 	}
+ 
++	pcie->gen = of_pci_get_max_link_speed(pdev->dev.of_node);
++	if (pcie->gen < 0)
++		pcie->gen = 2;
++
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "parf");
+ 	pcie->parf = devm_ioremap_resource(dev, res);
+ 	if (IS_ERR(pcie->parf)) {
+-- 
+2.25.1
+
