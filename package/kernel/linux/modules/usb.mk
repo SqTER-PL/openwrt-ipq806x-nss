@@ -75,8 +75,8 @@ define KernelPackage/usb-phy-qcom-dwc3
   DEPENDS:=@(TARGET_ipq40xx||TARGET_ipq806x)
   KCONFIG:= CONFIG_PHY_QCOM_IPQ806X_USB
   FILES:= \
-    $(LINUX_DIR)/drivers/phy/qualcomm/phy-qcom-dwc3.ko
-  AUTOLOAD:=$(call AutoLoad,45,phy-qcom-dwc3,1)
+    $(LINUX_DIR)/drivers/phy/qualcomm/phy-qcom-ipq806x-usb.ko
+  AUTOLOAD:=$(call AutoLoad,45,phy-qcom-ipq806x-usb,1)
   $(call AddDepends/usb)
 endef
 
