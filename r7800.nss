@@ -103,7 +103,6 @@ CONFIG_DEFAULT_odhcpd-ipv6only=y
 CONFIG_DEFAULT_opkg=y
 CONFIG_DEFAULT_ppp=y
 CONFIG_DEFAULT_ppp-mod-pppoe=y
-CONFIG_DEFAULT_qca-nss-gmac=y
 CONFIG_DEFAULT_swconfig=y
 CONFIG_DEFAULT_uboot-envtools=y
 CONFIG_DEFAULT_uci=y
@@ -2209,6 +2208,7 @@ CONFIG_PACKAGE_kmod-nf-reject6=y
 # CONFIG_PACKAGE_kmod-phy-broadcom is not set
 # CONFIG_PACKAGE_kmod-phy-realtek is not set
 # CONFIG_PACKAGE_kmod-phylink is not set
+# CONFIG_PACKAGE_kmod-qca-nss-cfi-cryptoapi is not set
 # CONFIG_PACKAGE_kmod-qca-nss-crypto is not set
 CONFIG_PACKAGE_kmod-qca-nss-drv=y
 CONFIG_PACKAGE_kmod-qca-nss-gmac=y
@@ -2307,6 +2307,7 @@ CONFIG_PACKAGE_kmod-pppox=y
 # CONFIG_QCA_NSS_ECM_EXAMPLES_PCC is not set
 # CONFIG_QCA_NSS_ECM_EXAMPLES_MARK is not set
 # CONFIG_QCA_NSS_ECM_OVS is not set
+# CONFIG_QCA_ECM_SFE_SUPPORT is not set
 # end of ECM Configuration
 
 # CONFIG_PACKAGE_kmod-qca-nss-ecm-premium-noload is not set
@@ -2323,9 +2324,9 @@ CONFIG_PACKAGE_kmod-qca-nss-ecm-standard=y
 # CONFIG_PACKAGE_kmod-sched-ipset is not set
 # CONFIG_PACKAGE_kmod-sched-mqprio is not set
 # CONFIG_PACKAGE_kmod-sctp is not set
-CONFIG_PACKAGE_kmod-shortcut-fe=y
+# CONFIG_PACKAGE_kmod-shortcut-fe is not set
 # CONFIG_PACKAGE_kmod-shortcut-fe-cm is not set
-CONFIG_PACKAGE_kmod-shortcut-fe-drv=y
+# CONFIG_PACKAGE_kmod-shortcut-fe-drv is not set
 # CONFIG_PACKAGE_kmod-sit is not set
 CONFIG_PACKAGE_kmod-slhc=y
 # CONFIG_PACKAGE_kmod-slip is not set
@@ -3451,6 +3452,8 @@ CONFIG_PACKAGE_libxtables=y
 # CONFIG_PACKAGE_libuhttpd-nossl is not set
 # CONFIG_PACKAGE_libuhttpd-openssl is not set
 # CONFIG_PACKAGE_libuhttpd-wolfssl is not set
+# CONFIG_PACKAGE_libulfius-gnutls is not set
+# CONFIG_PACKAGE_libulfius-nossl is not set
 # CONFIG_PACKAGE_libunbound-heavy is not set
 # CONFIG_PACKAGE_libunbound-light is not set
 # CONFIG_PACKAGE_libuwsc-mbedtls is not set
@@ -3835,6 +3838,7 @@ CONFIG_PACKAGE_libnl-tiny=y
 # CONFIG_PACKAGE_libopus is not set
 # CONFIG_PACKAGE_libopusenc is not set
 # CONFIG_PACKAGE_libopusfile is not set
+# CONFIG_PACKAGE_liborcania is not set
 # CONFIG_PACKAGE_libout123 is not set
 # CONFIG_PACKAGE_libowfat is not set
 # CONFIG_PACKAGE_libp11 is not set
@@ -4205,6 +4209,7 @@ CONFIG_LUCI_CSSTIDY=y
 #
 # CONFIG_PACKAGE_luci-proto-3g is not set
 # CONFIG_PACKAGE_luci-proto-bonding is not set
+# CONFIG_PACKAGE_luci-proto-gre is not set
 # CONFIG_PACKAGE_luci-proto-hnet is not set
 # CONFIG_PACKAGE_luci-proto-ipip is not set
 # CONFIG_PACKAGE_luci-proto-ipv6 is not set
