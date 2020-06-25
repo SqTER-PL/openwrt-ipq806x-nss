@@ -31,6 +31,9 @@ get_front_end_mode() {
 	nss)
 		echo '1'
 		;;
+#	sfe)
+#		echo '2'
+#		;;
 	*)
 		echo 'uci_option_acceleration_engine is invalid'
 	esac
@@ -41,6 +44,12 @@ support_bridge() {
 	[ -d /sys/kernel/debug/ecm/ecm_nss_ipv4 ] && return 0
 	#SFE doesn't support bridge acceleration
 	[ -d /sys/kernel/debug/ecm/ecm_sfe_ipv4 ] && return 1
+}
+
+load_sfe() {
+#	[ -d /sys/module/shortcut_fe ] || insmod shortcut-fe
+#	[ -d /sys/module/shortcut_fe_ipv6 ] || insmod shortcut-fe-ipv6
+#	[ -d /sys/module/shortcut_fe_drv ] || insmod shortcut-fe-drv
 }
 
 load_ecm() {
