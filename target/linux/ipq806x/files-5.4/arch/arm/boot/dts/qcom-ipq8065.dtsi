@@ -24,16 +24,16 @@
 
 		nss0: nss@40000000 {
 			compatible = "qcom,nss";
-			qcom,low-frequency = <110000000>;
+			qcom,low-frequency = <600000000>;
 			qcom,mid-frequency = <600000000>;
-			qcom,max-frequency = <800000000>;
+			qcom,max-frequency = <600000000>;
 		};
 
 		nss1: nss@40800000 {
 			compatible = "qcom,nss";
-			qcom,low-frequency = <110000000>;
+			qcom,low-frequency = <600000000>;
 			qcom,mid-frequency = <600000000>;
-			qcom,max-frequency = <800000000>;
+			qcom,max-frequency = <600000000>;
 		};
 
 	};
