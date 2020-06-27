@@ -31,9 +31,9 @@ get_front_end_mode() {
 	nss)
 		echo '1'
 		;;
-	sfe)
-		echo '2'
-		;;
+#	sfe)
+#		echo '2'
+#		;;
 	*)
 		echo 'uci_option_acceleration_engine is invalid'
 	esac
@@ -47,9 +47,7 @@ support_bridge() {
 }
 
 load_sfe() {
-	[ -d /sys/module/shortcut_fe ] || insmod shortcut-fe
-	[ -d /sys/module/shortcut_fe_ipv6 ] || insmod shortcut-fe-ipv6
-	[ -d /sys/module/shortcut_fe_drv ] || insmod shortcut-fe-drv
+	echo "" > /dev/null
 }
 
 load_ecm() {
