@@ -1,4 +1,4 @@
-From c91435c739940e03f6e79a1bd0ee008f837531df Mon Sep 17 00:00:00 2001
+From 4c7b242bbae697463e641062084c2b90b45d8b88 Mon Sep 17 00:00:00 2001
 From: Ansuel Smith <ansuelsmth@gmail.com>
 Date: Sat, 22 Feb 2020 16:33:10 +0100
 Subject: [PATCH 1/6] cpufreq: add Krait dedicated scaling driver
@@ -17,12 +17,12 @@ Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
 ---
  drivers/cpufreq/Kconfig.arm        |   9 +
  drivers/cpufreq/Makefile           |   1 +
- drivers/cpufreq/krait-cpufreq-dt.c | 492 +++++++++++++++++++++++++++++
- 3 files changed, 502 insertions(+)
+ drivers/cpufreq/krait-cpufreq-dt.c | 457 +++++++++++++++++++++++++++++
+ 3 files changed, 467 insertions(+)
  create mode 100644 drivers/cpufreq/krait-cpufreq-dt.c
 
 diff --git a/drivers/cpufreq/Kconfig.arm b/drivers/cpufreq/Kconfig.arm
-index 3858d86cf409..fe522c1cab6e 100644
+index 3858d86cf409..1365540deed7 100644
 --- a/drivers/cpufreq/Kconfig.arm
 +++ b/drivers/cpufreq/Kconfig.arm
 @@ -126,6 +126,15 @@ config ARM_OMAP2PLUS_CPUFREQ
@@ -55,10 +55,10 @@ index f6670c4abbb0..ebc35b2a8e4a 100644
  obj-$(CONFIG_ARM_S3C2412_CPUFREQ)	+= s3c2412-cpufreq.o
 diff --git a/drivers/cpufreq/krait-cpufreq-dt.c b/drivers/cpufreq/krait-cpufreq-dt.c
 new file mode 100644
-index 000000000000..64b35cae2da4
+index 000000000000..9b285f938e5e
 --- /dev/null
 +++ b/drivers/cpufreq/krait-cpufreq-dt.c
-@@ -0,0 +1,492 @@
+@@ -0,0 +1,457 @@
 +#include <linux/clk.h>
 +#include <linux/cpu.h>
 +#include <linux/cpufreq.h>
@@ -78,18 +78,18 @@ index 000000000000..64b35cae2da4
 +	struct opp_table *opp_table;
 +	struct device *cpu_dev;
 +	const char *reg_name;
-+	struct clk *l2_clk; /* L2 clock */
-+	unsigned int l2_volt_tol; /* L2 voltage tolerance */
++
++	struct clk			*l2_clk; /* L2 clock */
++	struct regulator	*l2_regulator; /* L2 supply */
++	unsigned int		l2_rate[3]; /* L2 bus clock rate */
++	bool				l2_rate_set;
++	unsigned int		l2_cpufreq[3]; /* L2 target CPU frequency */
++	unsigned int		l2_volt[3]; /* L2 voltage array */
++	bool				l2_volt_set;
++	unsigned int		l2_volt_tol; /* L2 voltage tolerance */
 +};
 +
 +struct shared_data {
-+	struct regulator *l2_regulator; /* L2 supply */
-+	unsigned int l2_rate[3]; /* L2 bus clock rate */
-+	bool l2_rate_set;
-+	unsigned int l2_cpufreq[3]; /* L2 target CPU frequency */
-+	unsigned int l2_volt[3]; /* L2 voltage array */
-+	bool l2_volt_set;
-+
 +	unsigned long *curr_freq_table;
 +	unsigned long curr_l2_freq;
 +	unsigned long curr_l2_volt;
@@ -102,7 +102,7 @@ index 000000000000..64b35cae2da4
 +	struct private_data *priv = policy->driver_data;
 +	unsigned long freq = policy->freq_table[index].frequency;
 +	struct clk *l2_clk = priv->l2_clk;
-+	struct regulator *l2_regulator = cpus_shared_data->l2_regulator;
++	struct regulator *l2_regulator = priv->l2_regulator;
 +	unsigned long l2_freq, target_l2_freq;
 +	unsigned long l2_vol, target_l2_volt;
 +	unsigned long target_freq;
@@ -111,29 +111,25 @@ index 000000000000..64b35cae2da4
 +	ret = dev_pm_opp_set_rate(priv->cpu_dev, freq * 1000);
 +
 +	if (!ret) {
-+		if (cpus_shared_data->l2_rate_set) {
++		if (priv->l2_rate_set) {
 +			int cpu, l2_index, tol = 0;
 +			target_freq = freq * 1000;
 +
-+			cpus_shared_data->curr_freq_table[policy->cpu] =
-+				target_freq;
-+			for_each_present_cpu (cpu)
++			cpus_shared_data->curr_freq_table[policy->cpu] = target_freq;
++			for_each_present_cpu(cpu)
 +				if (cpu != policy->cpu)
-+					target_freq = max(
-+						target_freq,
-+						cpus_shared_data
-+							->curr_freq_table[cpu]);
++					target_freq = max(target_freq, cpus_shared_data->curr_freq_table[cpu]);
 +
 +			for (l2_index = 2; l2_index > 0; l2_index--)
-+				if (target_freq >=
-+				    cpus_shared_data->l2_cpufreq[l2_index])
++				if (target_freq >= priv->l2_cpufreq[l2_index])
 +					break;
 +
 +			l2_freq = cpus_shared_data->curr_l2_freq;
-+			target_l2_freq = cpus_shared_data->l2_rate[l2_index];
++			target_l2_freq = priv->l2_rate[l2_index];
 +
 +			/* scale only if needed */
 +			if (l2_freq != target_l2_freq) {
++
 +				/*
 +				 * Set to idle bin if switching from normal to high bin 
 +				 * or vice versa. It has been notice that a bug is triggered
@@ -141,13 +137,9 @@ index 000000000000..64b35cae2da4
 +				 * this we first need to transition to the base rate and then
 +				 * to target rate
 +				 */
-+				if ((l2_index == 2 &&
-+				     l2_freq == cpus_shared_data->l2_rate[1]) ||
-+				    (l2_index == 1 &&
-+				     l2_freq == cpus_shared_data->l2_rate[2])) {
-+					ret = clk_set_rate(
-+						l2_clk,
-+						cpus_shared_data->l2_rate[0]);
++				if ( (l2_index == 2 && l2_freq == priv->l2_rate[1]) ||
++					 (l2_index == 1 && l2_freq == priv->l2_rate[2]) ) {
++					ret = clk_set_rate(l2_clk, priv->l2_rate[0]);
 +					if (ret)
 +						return ret;
 +				}
@@ -158,22 +150,17 @@ index 000000000000..64b35cae2da4
 +					return ret;
 +				cpus_shared_data->curr_l2_freq = target_l2_freq;
 +
-+				if (cpus_shared_data->l2_volt_set) {
++				if (priv->l2_volt_set) {
++
 +					l2_vol = cpus_shared_data->curr_l2_volt;
-+					target_l2_volt =
-+						cpus_shared_data
-+							->l2_volt[l2_index];
++					target_l2_volt = priv->l2_volt[l2_index];
 +
 +					if (l2_vol != target_l2_volt) {
-+						tol = target_l2_volt *
-+						      priv->l2_volt_tol / 100;
-+						ret = regulator_set_voltage_tol(
-+							l2_regulator,
-+							target_l2_volt, tol);
++						tol = target_l2_volt * priv->l2_volt_tol / 100;
++						ret = regulator_set_voltage_tol(l2_regulator,target_l2_volt,tol);
 +						if (ret)
 +							return ret;
-+						cpus_shared_data->curr_l2_volt =
-+							target_l2_volt;
++						cpus_shared_data->curr_l2_volt = target_l2_volt;
 +					}
 +				}
 +			}
@@ -275,9 +262,10 @@ index 000000000000..64b35cae2da4
 +	struct clk *cpu_clk;
 +	unsigned int transition_latency;
 +	const char *name;
-+	struct device_node *np;
-+	struct clk *l2_clk = NULL;
 +	int ret;
++	struct device_node *np, *l2_np;
++	struct clk *l2_clk = NULL;
++	struct regulator *l2_regulator = NULL;
 +
 +	cpu_dev = get_cpu_device(policy->cpu);
 +	if (!cpu_dev) {
@@ -306,8 +294,7 @@ index 000000000000..64b35cae2da4
 +		opp_table = dev_pm_opp_set_regulators(cpu_dev, &name, 1);
 +		if (IS_ERR(opp_table)) {
 +			ret = PTR_ERR(opp_table);
-+			dev_err(cpu_dev,
-+				"Failed to set regulator for cpu%d: %d\n",
++			dev_err(cpu_dev, "Failed to set regulator for cpu%d: %d\n",
 +				policy->cpu, ret);
 +			goto out_put_clk;
 +		}
@@ -347,13 +334,53 @@ index 000000000000..64b35cae2da4
 +	if (!IS_ERR(l2_clk))
 +		priv->l2_clk = l2_clk;
 +
-+	np = of_node_get(priv->cpu_dev->of_node);
++	l2_np = of_find_node_by_name(NULL, "qcom,l2");
++	if (l2_np) {
++		struct device_node *vdd;
++		np = of_node_get(priv->cpu_dev->of_node);
 +
-+	if (np)
-+		of_property_read_u32(np, "voltage-tolerance",
-+				     &priv->l2_volt_tol);
++		if (np)
++			of_property_read_u32(np, "voltage-tolerance", &priv->l2_volt_tol);
 +
-+	of_node_put(np);
++		of_node_put(np);
++
++		of_property_read_u32_array(l2_np, "l2-rates", priv->l2_rate, 3);
++		if (priv->l2_rate[0] && priv->l2_rate[1] && priv->l2_rate[2]) {
++			priv->l2_rate_set = true;
++			of_property_read_u32_array(l2_np, "l2-cpufreq", priv->l2_cpufreq, 3);
++			of_property_read_u32_array(l2_np, "l2-volt", priv->l2_volt, 3);
++		} else
++			dev_warn(cpu_dev, "L2: failed to parse L2 rates\n");
++
++		if (!priv->l2_cpufreq[0] && !priv->l2_cpufreq[1] && 
++			!priv->l2_cpufreq[2] && priv->l2_rate_set) {
++			int i;
++
++			dev_warn(cpu_dev, "L2: failed to parse target cpu freq, using defaults\n");
++			for (i = 0; i < 3; i++)
++				priv->l2_cpufreq[i] = priv->l2_rate[i];
++		}
++
++		if (priv->l2_volt[0] && priv->l2_volt[1] && priv->l2_volt[2] &&
++			priv->l2_volt_tol && priv->l2_rate_set) {
++			vdd = of_parse_phandle(l2_np, "l2-supply", 0);
++
++			if (vdd) {
++				l2_regulator = devm_regulator_get(cpu_dev, vdd->name);
++				if (!IS_ERR(l2_regulator)) {
++					priv->l2_regulator = l2_regulator;
++					priv->l2_volt_set = true;
++				} else {
++					dev_err(cpu_dev, "failed to get l2 supply, error=%pe\n",
++							l2_regulator);
++				}
++
++				of_node_put(vdd);
++			}
++		}
++
++		of_node_put(l2_np);
++	}
 +
 +	policy->driver_data = priv;
 +	policy->clk = cpu_clk;
@@ -431,8 +458,6 @@ index 000000000000..64b35cae2da4
 +static int dt_cpufreq_probe(struct platform_device *pdev)
 +{
 +	struct cpufreq_dt_platform_data *data = dev_get_platdata(&pdev->dev);
-+	struct device_node *l2_np;
-+	struct regulator *l2_regulator = NULL;
 +	int ret;
 +
 +	/*
@@ -450,73 +475,13 @@ index 000000000000..64b35cae2da4
 +	if (!cpus_shared_data)
 +		return -ENOMEM;
 +
-+	cpus_shared_data->curr_freq_table =
-+		kzalloc(sizeof(int) * CONFIG_NR_CPUS, GFP_KERNEL);
++	cpus_shared_data->curr_freq_table = kzalloc(sizeof(int) * CONFIG_NR_CPUS, GFP_KERNEL);
 +	if (!cpus_shared_data->curr_freq_table)
 +		return -ENOMEM;
 +
-+	l2_np = of_find_node_by_name(NULL, "qcom,l2");
-+	if (l2_np) {
-+		struct device_node *vdd;
-+
-+		of_property_read_u32_array(l2_np, "l2-rates",
-+					   cpus_shared_data->l2_rate, 3);
-+		if (cpus_shared_data->l2_rate[0] &&
-+		    cpus_shared_data->l2_rate[1] &&
-+		    cpus_shared_data->l2_rate[2]) {
-+			cpus_shared_data->l2_rate_set = true;
-+			of_property_read_u32_array(l2_np, "l2-cpufreq",
-+						   cpus_shared_data->l2_cpufreq,
-+						   3);
-+			of_property_read_u32_array(
-+				l2_np, "l2-volt", cpus_shared_data->l2_volt, 3);
-+		} else
-+			dev_warn(&pdev->dev, "L2: failed to parse L2 rates\n");
-+
-+		if (!cpus_shared_data->l2_cpufreq[0] &&
-+		    !cpus_shared_data->l2_cpufreq[1] &&
-+		    !cpus_shared_data->l2_cpufreq[2] &&
-+		    cpus_shared_data->l2_rate_set) {
-+			int i;
-+
-+			dev_warn(
-+				&pdev->dev,
-+				"L2: failed to parse target cpu freq, using defaults\n");
-+			for (i = 0; i < 3; i++)
-+				cpus_shared_data->l2_cpufreq[i] =
-+					cpus_shared_data->l2_rate[i];
-+		}
-+
-+		if (cpus_shared_data->l2_volt[0] &&
-+		    cpus_shared_data->l2_volt[1] &&
-+		    cpus_shared_data->l2_volt[2] &&
-+		    cpus_shared_data->l2_rate_set) {
-+			vdd = of_parse_phandle(l2_np, "l2-supply", 0);
-+
-+			if (vdd) {
-+				l2_regulator =
-+					devm_regulator_get(&pdev->dev, vdd->name);
-+				if (!IS_ERR(l2_regulator)) {
-+					cpus_shared_data->l2_regulator =
-+						l2_regulator;
-+					cpus_shared_data->l2_volt_set = true;
-+				} else {
-+					dev_err(&pdev->dev,
-+						"failed to get l2 supply, error=%pe\n",
-+						l2_regulator);
-+				}
-+
-+				of_node_put(vdd);
-+			}
-+		}
-+
-+		of_node_put(l2_np);
-+	}
-+
 +	if (data) {
 +		if (data->have_governor_per_policy)
-+			dt_cpufreq_driver.flags |=
-+				CPUFREQ_HAVE_GOVERNOR_PER_POLICY;
++			dt_cpufreq_driver.flags |= CPUFREQ_HAVE_GOVERNOR_PER_POLICY;
 +
 +		dt_cpufreq_driver.resume = data->resume;
 +		if (data->suspend)
@@ -552,5 +517,5 @@ index 000000000000..64b35cae2da4
 +MODULE_DESCRIPTION("Krait cpufreq driver");
 +MODULE_LICENSE("GPL");
 -- 
-2.27.0
+2.25.0
 

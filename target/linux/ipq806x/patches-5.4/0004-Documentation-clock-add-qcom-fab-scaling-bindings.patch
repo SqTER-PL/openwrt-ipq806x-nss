@@ -1,4 +1,4 @@
-From b10aeb1a25acdc3fb10638ffc4938891d55c9936 Mon Sep 17 00:00:00 2001
+From 4f8e7b35f2bc0d55c71e0363f1475ad4ae8c5957 Mon Sep 17 00:00:00 2001
 From: Ansuel Smith <ansuelsmth@gmail.com>
 Date: Sat, 22 Feb 2020 17:04:28 +0100
 Subject: [PATCH 4/6] Documentation: clock: add qcom,fab-scaling bindings
@@ -76,5 +76,5 @@ index 000000000000..779046df9ce2
 +      cpu_freq_threshold = <1000000000>;
 +    };
 -- 
-2.27.0
+2.25.0
 

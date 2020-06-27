@@ -1,4 +1,4 @@
-From 3040d08e41e0252713869616b3b9dee59d19b04a Mon Sep 17 00:00:00 2001
+From 423662b4a805c1c518a8b3ec6738656491ba7c17 Mon Sep 17 00:00:00 2001
 From: Ansuel Smith <ansuelsmth@gmail.com>
 Date: Sat, 22 Feb 2020 18:02:17 +0100
 Subject: [PATCH 2/6] Documentation: cpufreq: add qcom,krait-cpufreq bindings
@@ -97,5 +97,5 @@ index 000000000000..9862c35f86c9
 +
 +    };
 -- 
-2.27.0
+2.25.0
 

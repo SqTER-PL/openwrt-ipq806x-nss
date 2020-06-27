@@ -1,4 +1,4 @@
-From 913fcb89a5b86b06827a4a29dfbf62990f8523fb Mon Sep 17 00:00:00 2001
+From cfa5740b5fb40c846a313cb1dbed7bf9a8b2689a Mon Sep 17 00:00:00 2001
 From: Ansuel Smith <ansuelsmth@gmail.com>
 Date: Sat, 29 Feb 2020 01:48:24 +0100
 Subject: [PATCH 6/6] cpufreq: use dedicated driver on qcom nvmem
@@ -37,5 +37,5 @@ index f0d2d5035413..a28d102ab75c 100644
  	if (!IS_ERR(cpufreq_dt_pdev)) {
  		platform_set_drvdata(pdev, drv);
 -- 
-2.27.0
+2.25.0
 
