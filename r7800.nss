@@ -1638,9 +1638,9 @@ CONFIG_PACKAGE_htop=y
 # CONFIG_PACKAGE_ath10k-firmware-qca988x is not set
 # CONFIG_PACKAGE_ath10k-firmware-qca988x-ct is not set
 # CONFIG_PACKAGE_ath10k-firmware-qca988x-ct-full-htt is not set
-CONFIG_PACKAGE_ath10k-firmware-qca9984=y
+# CONFIG_PACKAGE_ath10k-firmware-qca9984 is not set
 # CONFIG_PACKAGE_ath10k-firmware-qca9984-ct is not set
-# CONFIG_PACKAGE_ath10k-firmware-qca9984-ct-full-htt is not set
+CONFIG_PACKAGE_ath10k-firmware-qca9984-ct-full-htt=y
 # CONFIG_PACKAGE_ath10k-firmware-qca9984-ct-htt is not set
 # CONFIG_PACKAGE_ath10k-firmware-qca99x0 is not set
 # CONFIG_PACKAGE_ath10k-firmware-qca99x0-ct is not set
@@ -2401,7 +2401,6 @@ CONFIG_PACKAGE_kmod-gpio-button-hotplug=y
 # CONFIG_PACKAGE_kmod-tpm-i2c-atmel is not set
 # CONFIG_PACKAGE_kmod-tpm-i2c-infineon is not set
 # CONFIG_PACKAGE_kmod-w83627hf-wdt is not set
-# CONFIG_PACKAGE_kmod-wifidog-ng is not set
 # CONFIG_PACKAGE_kmod-zram is not set
 # end of Other modules
 
@@ -2536,6 +2535,7 @@ CONFIG_PACKAGE_kmod-cfg80211=y
 # CONFIG_PACKAGE_kmod-libertas-usb is not set
 # CONFIG_PACKAGE_kmod-libipw is not set
 CONFIG_PACKAGE_kmod-mac80211=y
+CONFIG_PACKAGE_MAC80211_NSS_SUPPORT=y
 CONFIG_PACKAGE_MAC80211_DEBUGFS=y
 # CONFIG_PACKAGE_MAC80211_TRACING is not set
 CONFIG_PACKAGE_MAC80211_MESH=y
@@ -2721,6 +2721,7 @@ CONFIG_GOLANG_EXTERNAL_BOOTSTRAP_ROOT=""
 #
 # Python
 #
+# CONFIG_PACKAGE_docker-compose is not set
 # CONFIG_PACKAGE_gunicorn3 is not set
 # CONFIG_PACKAGE_micropython is not set
 # CONFIG_PACKAGE_micropython-lib is not set
@@ -2840,6 +2841,7 @@ CONFIG_GOLANG_EXTERNAL_BOOTSTRAP_ROOT=""
 # CONFIG_PACKAGE_python3-netdisco is not set
 # CONFIG_PACKAGE_python3-netifaces is not set
 # CONFIG_PACKAGE_python3-newt is not set
+# CONFIG_PACKAGE_python3-numpy is not set
 # CONFIG_PACKAGE_python3-oauthlib is not set
 # CONFIG_PACKAGE_python3-openpyxl is not set
 # CONFIG_PACKAGE_python3-openssl is not set
@@ -3454,8 +3456,7 @@ CONFIG_PACKAGE_libxtables=y
 # CONFIG_PACKAGE_libuhttpd-wolfssl is not set
 # CONFIG_PACKAGE_libulfius-gnutls is not set
 # CONFIG_PACKAGE_libulfius-nossl is not set
-# CONFIG_PACKAGE_libunbound-heavy is not set
-# CONFIG_PACKAGE_libunbound-light is not set
+# CONFIG_PACKAGE_libunbound is not set
 # CONFIG_PACKAGE_libuwsc-mbedtls is not set
 # CONFIG_PACKAGE_libuwsc-nossl is not set
 # CONFIG_PACKAGE_libuwsc-openssl is not set
@@ -4126,6 +4127,7 @@ CONFIG_LUCI_CSSTIDY=y
 # CONFIG_PACKAGE_luci-app-ddns is not set
 # CONFIG_PACKAGE_luci-app-diag-core is not set
 # CONFIG_PACKAGE_luci-app-dnscrypt-proxy is not set
+# CONFIG_PACKAGE_luci-app-dockerman is not set
 # CONFIG_PACKAGE_luci-app-dump1090 is not set
 # CONFIG_PACKAGE_luci-app-dynapoint is not set
 # CONFIG_PACKAGE_luci-app-firewall is not set
@@ -4372,10 +4374,6 @@ CONFIG_PACKAGE_tvheadend_by_sqter=y
 # CONFIG_PACKAGE_nodogsplash is not set
 # CONFIG_PACKAGE_opennds is not set
 # CONFIG_PACKAGE_wifidog is not set
-# CONFIG_PACKAGE_wifidog-ng-mbedtls is not set
-# CONFIG_PACKAGE_wifidog-ng-nossl is not set
-# CONFIG_PACKAGE_wifidog-ng-openssl is not set
-# CONFIG_PACKAGE_wifidog-ng-wolfssl is not set
 # CONFIG_PACKAGE_wifidog-tls is not set
 # end of Captive Portals
 
@@ -4595,7 +4593,6 @@ CONFIG_PACKAGE_iptables-mod-extra=y
 # CONFIG_PACKAGE_unbound-control is not set
 # CONFIG_PACKAGE_unbound-control-setup is not set
 # CONFIG_PACKAGE_unbound-daemon is not set
-# CONFIG_PACKAGE_unbound-daemon-heavy is not set
 # CONFIG_PACKAGE_unbound-host is not set
 CONFIG_PACKAGE_wsdd2=y
 # CONFIG_PACKAGE_zonestitcher is not set
@@ -5642,6 +5639,7 @@ CONFIG_PACKAGE_mc_full=y
 # CONFIG_PACKAGE_canutils-slcanpty is not set
 # CONFIG_PACKAGE_canutils-testj1939 is not set
 # CONFIG_PACKAGE_cgroup-tools is not set
+# CONFIG_PACKAGE_cgroupfs-mount is not set
 # CONFIG_PACKAGE_cmdpad is not set
 # CONFIG_PACKAGE_coap-client is not set
 # CONFIG_PACKAGE_collectd is not set
@@ -5660,30 +5658,7 @@ CONFIG_PACKAGE_mc_full=y
 # CONFIG_PACKAGE_digitemp is not set
 # CONFIG_PACKAGE_digitemp-usb is not set
 # CONFIG_PACKAGE_dmesg is not set
-
-#
-# Kernel features for Docker
-#
-# CONFIG_DOCKER_KERNEL_OPTIONS is not set
-# CONFIG_DOCKER_SECCOMP is not set
-# CONFIG_DOCKER_RES_SHAPE is not set
-
-#
-# Network
-#
-# CONFIG_DOCKER_NET_OVERLAY is not set
-# CONFIG_DOCKER_NET_MACVLAN is not set
-# CONFIG_DOCKER_NET_TFTP is not set
-# end of Network
-
-#
-# Storage
-#
-# CONFIG_DOCKER_STO_EXT4 is not set
-# CONFIG_DOCKER_STO_BTRFS is not set
-# end of Storage
-# end of Kernel features for Docker
-
+# CONFIG_PACKAGE_docker-ce is not set
 # CONFIG_PACKAGE_domoticz is not set
 # CONFIG_PACKAGE_dropbearconvert is not set
 # CONFIG_PACKAGE_dtc is not set
@@ -5884,6 +5859,7 @@ CONFIG_PACKAGE_ubi-utils=y
 # CONFIG_PACKAGE_viewadsb is not set
 # CONFIG_PACKAGE_watchcat is not set
 # CONFIG_PACKAGE_whereis is not set
+# CONFIG_PACKAGE_which is not set
 # CONFIG_PACKAGE_whiptail is not set
 # CONFIG_PACKAGE_wifitoggle is not set
 # CONFIG_PACKAGE_wipe is not set
