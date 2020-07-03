@@ -1,4 +1,4 @@
-From 7c699a825fb186984647dd20bf10b9e7f4039b3c Mon Sep 17 00:00:00 2001
+From 57cdcbfdb969bae370a919fc6cda0c80a8c50fea Mon Sep 17 00:00:00 2001
 From: Ansuel Smith <ansuelsmth@gmail.com>
 Date: Sat, 22 Feb 2020 19:06:48 +0100
 Subject: [PATCH 5/6] cpufreq: add fab scale support to cpufreq
@@ -8,11 +8,11 @@ driver is compiled.
 
 Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
 ---
- drivers/cpufreq/krait-cpufreq-dt.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/cpufreq/krait-cpufreq-dt.c | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
 
 diff --git a/drivers/cpufreq/krait-cpufreq-dt.c b/drivers/cpufreq/krait-cpufreq-dt.c
-index 9b285f938e5e..6289e22035a0 100644
+index 64b35cae2da4..1dc42d90907d 100644
 --- a/drivers/cpufreq/krait-cpufreq-dt.c
 +++ b/drivers/cpufreq/krait-cpufreq-dt.c
 @@ -11,6 +11,10 @@
@@ -26,7 +26,7 @@ index 9b285f938e5e..6289e22035a0 100644
  #include "cpufreq-dt.h"
  
  struct private_data {
-@@ -103,6 +107,14 @@ static int set_target(struct cpufreq_policy *policy, unsigned int index)
+@@ -116,6 +120,14 @@ static int set_target(struct cpufreq_policy *policy, unsigned int index)
  					}
  				}
  			}
@@ -34,13 +34,52 @@ index 9b285f938e5e..6289e22035a0 100644
 +			/*
 +			 * Scale fabrics with max freq across all cores
 +			 */
-+			ret = scale_fabrics(target_freq);
++			ret = scale_fabrics(target_freq, CPU);
 +			if (ret)
 +				return ret;
 +#endif
  		}
  		arch_set_freq_scale(policy->related_cpus, freq,
  				    policy->cpuinfo.max_freq);
+@@ -372,6 +384,10 @@ static int dt_cpufreq_probe(struct platform_device *pdev)
+ 	struct cpufreq_dt_platform_data *data = dev_get_platdata(&pdev->dev);
+ 	struct device_node *l2_np;
+ 	struct regulator *l2_regulator = NULL;
++#ifdef CONFIG_QCOM_FAB_SCALING
++	struct device_node *fab_np;
++	unsigned int fab_idle_freq;
++#endif
+ 	int ret;
+ 
+ 	/*
+@@ -462,6 +478,17 @@ static int dt_cpufreq_probe(struct platform_device *pdev)
+ 			dt_cpufreq_driver.suspend = data->suspend;
+ 	}
+ 
++#ifdef CONFIG_QCOM_FAB_SCALING
++	fab_np = of_find_node_by_name(NULL, "fab-scaling");
++
++	if (!of_property_read_u32(fab_np, "cpu_fab_threshold",
++					&fab_idle_freq)) {
++		fab_scaling_register(fab_idle_freq, CPU);
++	}
++
++	of_node_put(fab_np);
++#endif
++
+ 	ret = cpufreq_register_driver(&dt_cpufreq_driver);
+ 	if (ret)
+ 		dev_err(&pdev->dev, "failed register driver: %d\n", ret);
+@@ -471,6 +498,9 @@ static int dt_cpufreq_probe(struct platform_device *pdev)
+ 
+ static int dt_cpufreq_remove(struct platform_device *pdev)
+ {
++#ifdef CONFIG_QCOM_FAB_SCALING
++	fab_scaling_unregister(CPU);
++#endif
+ 	kfree(cpus_shared_data->curr_freq_table);
+ 	kfree(cpus_shared_data);
+ 	cpufreq_unregister_driver(&dt_cpufreq_driver);
 -- 
-2.25.0
+2.27.0
 
